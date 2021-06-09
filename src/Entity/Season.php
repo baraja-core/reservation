@@ -166,8 +166,7 @@ class Season
 		}
 		usort(
 			$return,
-			static function (Date $a, Date $b) use ($x, $y): int
-			{
+			static function (Date $a, Date $b) use ($x, $y): int {
 				$left = $a->getDateType()
 					->getTimestamp();
 

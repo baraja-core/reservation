@@ -6,6 +6,7 @@ namespace Baraja\Reservation\Endpoint;
 
 
 use Baraja\Doctrine\EntityManager;
+use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\StructuredApi\BaseEndpoint;
 
@@ -13,6 +14,7 @@ final class ReservationEndpoint extends BaseEndpoint
 {
 	public function __construct(
 		private EntityManager $entityManager,
+		private Calendar $calendar,
 	) {
 	}
 
@@ -104,6 +106,41 @@ final class ReservationEndpoint extends BaseEndpoint
 				'otherReservationsByCustomer' => $otherReservationsByCustomer,
 			]
 		);
+	}
+
+
+	public function postUpdateInterval(int $id, \DateTime $from, \DateTime $to): void
+	{
+		$reservation = $this->getReservation($id);
+		$days = $this->calendar->getByInterval($from, $to);
+		foreach ($days as $day) {
+			$dayReservation = $day->getReservation();
+			if ($dayReservation !== null && $dayReservation->getId() !== $id) {
+				$this->sendError(
+					'Day "' . $day->getDate() . '" can not be used, '
+					. 'because contain reservation "' . $dayReservation->getNumber() . '".',
+				);
+			}
+			$day->setReservation($reservation);
+		}
+
+		$this->entityManager->flush();
+		$this->flashMessage('Reservation interval has been updated.', self::FLASH_MESSAGE_SUCCESS);
+		$this->sendOk();
+	}
+
+
+	public function postRemove(int $id): void
+	{
+		$reservation = $this->getReservation($id);
+		foreach ($reservation->getDates() as $date) {
+			$date->setReservation(null);
+		}
+		$this->entityManager->remove($reservation);
+		$this->entityManager->flush();
+
+		$this->flashMessage('Reservation has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->sendOk();
 	}
 
 

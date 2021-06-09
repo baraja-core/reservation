@@ -12,7 +12,7 @@ use Nette\Utils\Strings;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="nordic__season")
+ * @ORM\Table(name="reservation__season")
  */
 class Season
 {

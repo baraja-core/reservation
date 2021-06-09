@@ -121,7 +121,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			$reservation = $date->getReservation();
 			if ($reservation !== null) { // is reservation?
 				$this->sendError(
-					'Season "' . $season->getName() . '" (' . $id. ') can not be removed, '
+					'Season "' . $season->getName() . '" (' . $id . ') can not be removed, '
 					. 'because contain a reservation "' . $reservation->getNumber() . '".'
 				);
 			}

@@ -1,7 +1,7 @@
 {
-	"name": "baraja-core/template",
-	"description": "This is a template package.",
-	"homepage": "https://github.com/baraja-core/template",
+	"name": "baraja-core/reservation",
+	"description": "Simple reservation system.",
+	"homepage": "https://github.com/baraja-core/reservation",
 	"authors": [
 		{
 			"name": "Jan Barášek",
@@ -9,7 +9,14 @@
 		}
 	],
 	"require": {
-		"php": "^8.0"
+		"php": "^8.0",
+		"baraja-core/plugin-system": "^2.0",
+		"baraja-core/phone-number": "^1.0",
+		"baraja-core/url": "^1.1",
+		"baraja-core/dynamic-configuration": "^2.1",
+		"baraja-core/doctrine": "^3.0",
+		"baraja-core/structured-api": "^3.0 >=3.0.6",
+		"nette/mail": "^3.0"
 	},
 	"require-dev": {
 		"phpstan/phpstan": "^0.12.74",

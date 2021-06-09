@@ -21,6 +21,62 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 	}
 
 
+	public function actionDetail(int $id): void
+	{
+		$season = $this->getSeason($id);
+		$this->sendJson([
+			'id' => $id,
+			'name' => $season->getName(),
+			'description' => $season->getDescription(),
+			'from' => $season->getFromDate(),
+			'to' => $season->getToDate(),
+			'price' => $season->getPrice(),
+			'minimalDays' => $season->getMinimalDays(),
+			'active' => $season->isActive(),
+		]);
+	}
+
+
+	public function postSave(
+		int $id,
+		string $name,
+		?string $description,
+		\DateTime $from,
+		\DateTime $to,
+		int $price,
+		int $minimalDays,
+		bool $active,
+		bool $flush = false,
+	): void {
+		$season = $this->getSeason($id);
+		$season->setName($name);
+		$season->setDescription($description);
+		$season->setPrice($price);
+		$season->setMinimalDays($minimalDays);
+		$season->setActive($active);
+
+		$days = $this->calendar->getByInterval($from, $to);
+		if ($days === []) {
+			$this->sendError('Date interval can not be empty.');
+		}
+		foreach ($days as $date) {
+			if ($flush === false) { // overwrite selected days by given season
+				$dateSeason = $date->getSeason();
+				if ($dateSeason !== null && $dateSeason->getId() !== $id) {
+					$this->sendError(
+						'Season "' . $dateSeason->getName() . '" for date "' . $date->getDate() . '" already exist.',
+					);
+				}
+			}
+			$date->setSeason($season);
+		}
+
+		$this->entityManager->flush();
+		$this->flashMessage('Season has been updated.', self::FLASH_MESSAGE_SUCCESS);
+		$this->sendOk();
+	}
+
+
 	public function postCreateSeason(
 		string $name,
 		?string $description,
@@ -58,11 +114,33 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 	}
 
 
+	public function postRemove(int $id): void
+	{
+		$season = $this->getSeason($id);
+		$this->entityManager->remove($season);
+		$this->entityManager->flush();
+		$this->flashMessage('Season has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->sendOk();
+	}
+
+
 	public function actionSeasonSetActive(int $id): void
 	{
+		$season = $this->getSeason($id);
+		$season->setActive(!$season->isActive());
+		$this->entityManager->flush();
+		$this->flashMessage(
+			'Season has been marked as ' . ($season->isActive() ? 'active' : 'hidden') . '.',
+			self::FLASH_MESSAGE_SUCCESS,
+		);
+		$this->sendOk();
+	}
+
+
+	private function getSeason(int $id): Season
+	{
 		try {
-			/** @var Season $season */
-			$season = $this->entityManager->getRepository(Season::class)
+			return $this->entityManager->getRepository(Season::class)
 				->createQueryBuilder('s')
 				->where('s.id = :id')
 				->setParameter('id', $id)
@@ -71,9 +149,5 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		} catch (NoResultException | NonUniqueResultException) {
 			$this->sendError('Season "' . $id . '" does not exist.');
 		}
-
-		$season->setActive(!$season->isActive());
-		$this->entityManager->flush();
-		$this->sendOk();
 	}
 }

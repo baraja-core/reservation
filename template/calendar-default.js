@@ -228,7 +228,7 @@ Vue.component('calendar-default', {
 		},
 		createSeason(event) {
 			event.preventDefault();
-			axiosApi.post('calendar/create-season', this.seasonForm).then(req => {
+			axiosApi.post('reservation-season/create-season', this.seasonForm).then(req => {
 				this.$bvModal.hide('modal-new-season');
 				this.sync();
 			}).finally(() => {
@@ -236,7 +236,7 @@ Vue.component('calendar-default', {
 			});
 		},
 		activeSeason(id) {
-			axiosApi.get('calendar/season-set-active?id=' + id).then(req => {
+			axiosApi.get('reservation-season/season-set-active?id=' + id).then(req => {
 				this.sync();
 			})
 		}

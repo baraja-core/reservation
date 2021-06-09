@@ -11,7 +11,7 @@ use Nette\Utils\DateTime;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="nordic__date")
+ * @ORM\Table(name="reservation__date")
  */
 class Date
 {

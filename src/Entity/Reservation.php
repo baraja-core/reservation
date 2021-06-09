@@ -15,7 +15,7 @@ use Nette\Utils\Strings;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="nordic__reservation")
+ * @ORM\Table(name="reservation__reservation")
  */
 class Reservation
 {

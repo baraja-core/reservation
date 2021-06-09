@@ -72,6 +72,16 @@ final class ReservationEndpoint extends BaseEndpoint
 			];
 		}
 
+		$otherReservationsByCustomer = [];
+		foreach ($this->getReservationsByCustomer($reservation->getEmail(), $id) as $reservationItem) {
+			$otherReservationsByCustomer[] = [
+				'id' => $reservationItem->getId(),
+				'number' => $reservationItem->getIdentifier(),
+				'price' => $reservationItem->getPrice(),
+				'status' => $reservationItem->getStatus(),
+			];
+		}
+
 		$this->sendJson(
 			[
 				'id' => $reservation->getId(),
@@ -91,6 +101,7 @@ final class ReservationEndpoint extends BaseEndpoint
 					->format('d. m. Y'),
 				'createDate' => $reservation->getCreateDate(),
 				'dates' => $dates,
+				'otherReservationsByCustomer' => $otherReservationsByCustomer,
 			]
 		);
 	}
@@ -106,5 +117,28 @@ final class ReservationEndpoint extends BaseEndpoint
 			->setParameter('id', $id)
 			->getQuery()
 			->getSingleResult();
+	}
+
+
+	/**
+	 * @return Reservation[]
+	 */
+	private function getReservationsByCustomer(string $email, ?int $ignoreReservationId = null: array
+	{
+		$selection = $this->entityManager->getRepository(Reservation::class)
+			->createQueryBuilder('r')
+			->select('r, date')
+			->leftJoin('r.dates', 'date')
+			->where('r.email = :email')
+			->setParameter('email', $email);
+
+		if ($ignoreReservationId !== null) {
+			$selection->andWhere('r.id != :ignoredId')
+				->setParameter('ignoredId', $ignoreReservationId);
+		}
+
+		return $selection
+			->getQuery()
+			->getResult();
 	}
 }

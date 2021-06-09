@@ -117,6 +117,15 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 	public function postRemove(int $id): void
 	{
 		$season = $this->getSeason($id);
+		foreach ($season->getDates() as $date) {
+			if ($date->isReservation()) {
+				$reservation = $date->getReservation();
+				$this->sendError(
+					'Season "' .  $season->getName() . '" (' . $id. ') can not be removed, '
+					. 'because contain a reservation "' . $reservation->getNumber() . '".'
+				);
+			}
+		}
 		$this->entityManager->remove($season);
 		$this->entityManager->flush();
 		$this->flashMessage('Season has been removed.', self::FLASH_MESSAGE_SUCCESS);

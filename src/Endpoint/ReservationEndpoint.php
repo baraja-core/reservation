@@ -123,7 +123,7 @@ final class ReservationEndpoint extends BaseEndpoint
 	/**
 	 * @return Reservation[]
 	 */
-	private function getReservationsByCustomer(string $email, ?int $ignoreReservationId = null: array
+	private function getReservationsByCustomer(string $email, ?int $ignoreReservationId = null): array
 	{
 		$selection = $this->entityManager->getRepository(Reservation::class)
 			->createQueryBuilder('r')

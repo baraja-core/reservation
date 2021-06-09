@@ -130,6 +130,25 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
+	public function actionMinimalDays(\DateTime $from, \DateTime $to): void
+	{
+		$return = null;
+		foreach ($this->calendar->getByInterval($from, $to) as $date) {
+			$season = $date->getSeason();
+			$days = $season !== null ? $season->getMinimalDays() : 0;
+			if ($return === null || $days > $return) {
+				$return = $days;
+			}
+		}
+
+		$this->sendJson([
+			'from' => $from,
+			'to' => $to,
+			'minimalDays' => $return ?? 1,
+		]);
+	}
+
+
 	public function postRemove(int $id): void
 	{
 		$reservation = $this->getReservation($id);

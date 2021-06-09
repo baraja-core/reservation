@@ -1,0 +1,2 @@
+extensions:
+	reservation: Baraja\Reservation\ReservationExtension

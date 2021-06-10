@@ -36,7 +36,14 @@ Vue.component('reservation-overview', {
 				<b-button variant="danger" @click="storno">Storno</b-button>
 			</div>
 		</div>
-		<h4 class="mt-3">Calendar days:</h4>
+		<div class="row mt-3">
+			<div class="col">
+				<h4>Calendar days:</h4>
+			</div>
+			<div class="col-3 text-right">
+				<b-button variant="secondary" size="sm" v-b-modal.modal-edit-interval>Change interval</b-button>
+			</div>
+		</div>
 		<div class="row">
 			<div v-for="date in item.dates" class="col-sm-2 mb-3">
 				<div style="border:1px dotted #aaa">
@@ -45,9 +52,6 @@ Vue.component('reservation-overview', {
 							<td>
 								{{ date.date }}<br>
 								{{ date.season }}
-							</td>
-							<td class="text-right">
-								<b-button variant="danger" size="sm" class="px-1 py-0" @click="removeDate(date.id)">x</b-button>
 							</td>
 						</tr>
 					</table>
@@ -72,6 +76,21 @@ Vue.component('reservation-overview', {
 			</tr>
 		</table>
 	</template>
+	<b-modal id="modal-edit-interval" title="Edit date interval" hide-footer>
+		<div class="row">
+			<div class="col">
+				<b-form-group label="From date:" label-for="edit-interval-from">
+					<b-form-datepicker id="edit-interval-from" v-model="item.fromDate" required></b-form-datepicker>
+				</b-form-group>
+			</div>
+			<div class="col">
+				<b-form-group label="To date:" label-for="edit-interval-to">
+					<b-form-datepicker id="edit-interval-to" v-model="item.toDate" required></b-form-datepicker>
+				</b-form-group>
+			</div>
+		</div>
+		<b-button variant="primary" type="submit" @click="updateDateInterval">Update</b-button>
+	</b-modal>
 </cms-card>`,
 	data() {
 		return {
@@ -88,11 +107,17 @@ Vue.component('reservation-overview', {
 					this.item = req.data;
 				});
 		},
-		removeDate(id) {
-			if (!confirm('Really?')) {
+		updateDateInterval() {
+			if (!confirm('Really? Reserved interval will be rewrited.')) {
 				return;
 			}
-			this.item = null;
+			axiosApi.post('reservation/update-interval', {
+				id: this.id,
+				from: this.item.fromDate,
+				to: this.item.toDate
+			}).then(req => {
+				this.sync();
+			});
 		},
 		storno() {
 			if (!confirm('Really? Reservation will be removed from database.')) {

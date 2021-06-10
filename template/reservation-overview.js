@@ -62,7 +62,7 @@ Vue.component('reservation-overview', {
 		<div v-if="item.otherReservationsByCustomer.length === 0" class="text-center my-5 text-secondary">
 			There are no other reservations.
 		</div>
-		<table class="table table-sm">
+		<table v-else class="table table-sm">
 			<tr>
 				<th>Number</th>
 				<th>Price</th>
@@ -71,24 +71,28 @@ Vue.component('reservation-overview', {
 			<tr v-for="otherReservation in item.otherReservationsByCustomer">
 				<td><a :href="link('Reservation:detail', {id: otherReservation.id})">{{ otherReservation.number }}</a></td>
 				<td>{{ otherReservation.price }}</td>
-				<td>{{ otherReservation. }}</td>
-				{{ otherReservation.status }}
+				<td>{{ otherReservation.status }}</td>
 			</tr>
 		</table>
 	</template>
 	<b-modal id="modal-edit-interval" title="Edit date interval" hide-footer>
-		<div class="row">
-			<div class="col">
-				<b-form-group label="From date:" label-for="edit-interval-from">
-					<b-form-datepicker id="edit-interval-from" v-model="item.fromDate" required></b-form-datepicker>
-				</b-form-group>
-			</div>
-			<div class="col">
-				<b-form-group label="To date:" label-for="edit-interval-to">
-					<b-form-datepicker id="edit-interval-to" v-model="item.toDate" required></b-form-datepicker>
-				</b-form-group>
-			</div>
+		<div v-if="item === null" class="text-center my-5">
+			<b-spinner></b-spinner>
 		</div>
+		<template v-else>
+			<div class="row">
+				<div class="col">
+					<b-form-group label="From date:" label-for="edit-interval-from">
+						<b-form-datepicker id="edit-interval-from" v-model="item.fromDate" required></b-form-datepicker>
+					</b-form-group>
+				</div>
+				<div class="col">
+					<b-form-group label="To date:" label-for="edit-interval-to">
+						<b-form-datepicker id="edit-interval-to" v-model="item.toDate" required></b-form-datepicker>
+					</b-form-group>
+				</div>
+			</div>
+		</template>
 		<b-button variant="primary" type="submit" @click="updateDateInterval">Update</b-button>
 	</b-modal>
 </cms-card>`,

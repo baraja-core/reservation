@@ -32,6 +32,9 @@ Vue.component('reservation-overview', {
 				Price: {{ item.price }}<br>
 				Created: {{ item.createDate }}
 			</div>
+			<div class="col text-right">
+				<b-button variant="danger" @click="storno">Storno</b-button>
+			</div>
 		</div>
 		<h4 class="mt-3">Calendar days:</h4>
 		<div class="row">
@@ -90,6 +93,14 @@ Vue.component('reservation-overview', {
 				return;
 			}
 			this.item = null;
+		},
+		storno() {
+			if (!confirm('Really? Reservation will be removed from database.')) {
+				return;
+			}
+			axiosApi.post('reservation/remove', {id: this.id}).then(req => {
+				window.location.replace(link('Reservation:default'));
+			});
 		}
 	}
 });

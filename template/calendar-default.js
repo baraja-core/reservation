@@ -61,7 +61,7 @@ Vue.component('calendar-default', {
 													{{ season.active ? 'YES' : 'NO' }}
 												</b-button>
 											</div>
-											<div class="col text-right">
+											<div class="col-5 text-right">
 												<b-button variant="secondary" size="sm" class="px-2 py-0" v-b-modal.modal-edit-season @click="editSeason(season.id)">Edit</b-button>
 											</div>
 										</div>
@@ -188,10 +188,12 @@ Vue.component('calendar-default', {
 		</b-form>
 	</b-modal>
 	<b-modal id="modal-edit-season" :title="'Edit season (' + seasonEditForm.id +  ')'" hide-footer>
-		This season is <b>{{ seasonEditForm.active ? 'active' : 'hidden' }}</b>.<br>
-		<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(seasonEditForm.id)">
-			{{ seasonEditForm.active ? 'Mark as hidden' : 'Mark as active' }}
-		</b-button>
+		<div class="mb-3">
+			This season is <b>{{ seasonEditForm.active ? 'active' : 'hidden' }}</b>.
+			<b-button :variant="seasonEditForm.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(seasonEditForm.id)">
+				{{ seasonEditForm.active ? 'Mark as hidden' : 'Mark as active' }}
+			</b-button>
+		</div>
 		<b-form @submit="saveSeason">
 			<b-form-group label="Name:" label-for="edit-season-name">
 				<b-form-input id="edit-season-name" v-model="seasonEditForm.name" required></b-form-input>
@@ -224,8 +226,7 @@ Vue.component('calendar-default', {
 				</div>
 			</div>
 			<b-form-group>
-				<b-form-checkbox v-model="seasonEditForm.flush"></b-form-checkbox>
-				Flush calendar changes
+				<b-form-checkbox v-model="seasonEditForm.flush">Flush calendar changes</b-form-checkbox>
 			</b-form-group>
 			<div class="row">
 				<div class="col">

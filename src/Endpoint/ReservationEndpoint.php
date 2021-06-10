@@ -127,6 +127,8 @@ final class ReservationEndpoint extends BaseEndpoint
 			}
 			$day->setReservation($reservation);
 		}
+		$reservation->setFrom($from);
+		$reservation->setTo($to);
 
 		$this->entityManager->flush();
 		$this->flashMessage('Reservation interval has been updated.', self::FLASH_MESSAGE_SUCCESS);

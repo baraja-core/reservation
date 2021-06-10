@@ -186,7 +186,8 @@ final class ReservationEndpoint extends BaseEndpoint
 			->select('r, date')
 			->leftJoin('r.dates', 'date')
 			->where('r.email = :email')
-			->setParameter('email', $email);
+			->setParameter('email', $email)
+			->orderBy('r.createDate', 'DESC');
 
 		if ($ignoreReservationId !== null) {
 			$selection->andWhere('r.id != :ignoredId')

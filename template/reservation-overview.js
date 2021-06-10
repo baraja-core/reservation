@@ -51,6 +51,23 @@ Vue.component('reservation-overview', {
 				</div>
 			</div>
 		</div>
+		<h4>Other old reservations by this customer</h4>
+		<div v-if="item.otherReservationsByCustomer.length === 0" class="text-center my-5 text-secondary">
+			There are no other reservations.
+		</div>
+		<table class="table table-sm">
+			<tr>
+				<th>Number</th>
+				<th>Price</th>
+				<th>Status</th>
+			</tr>
+			<tr v-for="otherReservation in item.otherReservationsByCustomer">
+				<td><a :href="link('Reservation:detail', {id: otherReservation.id})">{{ otherReservation.number }}</a></td>
+				<td>{{ otherReservation.price }}</td>
+				<td>{{ otherReservation. }}</td>
+				{{ otherReservation.status }}
+			</tr>
+		</table>
 	</template>
 </cms-card>`,
 	data() {

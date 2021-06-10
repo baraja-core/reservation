@@ -33,6 +33,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			'price' => $season->getPrice(),
 			'minimalDays' => $season->getMinimalDays(),
 			'active' => $season->isActive(),
+			'flush' => false,
 		]);
 	}
 

@@ -52,11 +52,20 @@ Vue.component('calendar-default', {
 								</div>
 								<div style="border-top:1px solid #aaa">
 									Price: {{ season.price }} CZK<br>
-									Minimal days: {{ season.minimalDays }}<br>
-									Active:
-									<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(season.id)">
-										{{ season.active ? 'YES' : 'NO' }}
-									</b-button>
+									Minimal days: {{ season.minimalDays }}
+									<div class="container-fluid">
+										<div class="row">
+											<div class="col">
+												Active:
+												<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(season.id)">
+													{{ season.active ? 'YES' : 'NO' }}
+												</b-button>
+											</div>
+											<div class="col text-right">
+												<b-button variant="secondary" size="sm" class="px-2 py-0" v-b-modal.modal-edit-season @click="editSeason(season.id)">Edit</b-button>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -178,6 +187,56 @@ Vue.component('calendar-default', {
 			<b-button variant="primary" type="submit" @click="createSeason">Create season</b-button>
 		</b-form>
 	</b-modal>
+	<b-modal id="modal-edit-season" :title="'Edit season (' + seasonEditForm.id +  ')'" hide-footer>
+		This season is <b>{{ seasonEditForm.active ? 'active' : 'hidden' }}</b>.<br>
+		<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(seasonEditForm.id)">
+			{{ seasonEditForm.active ? 'Mark as hidden' : 'Mark as active' }}
+		</b-button>
+		<b-form @submit="saveSeason">
+			<b-form-group label="Name:" label-for="edit-season-name">
+				<b-form-input id="edit-season-name" v-model="seasonEditForm.name" required></b-form-input>
+			</b-form-group>
+			<b-form-group label="Description:" label-for="edit-season-description">
+				<b-form-textarea id="edit-season-description" v-model="seasonEditForm.description"></b-form-textarea>
+			</b-form-group>
+			<div class="row">
+				<div class="col">
+					<b-form-group label="From date:" label-for="edit-season-from">
+						<b-form-datepicker id="edit-season-from" v-model="seasonEditForm.from" required></b-form-datepicker>
+					</b-form-group>
+				</div>
+				<div class="col">
+					<b-form-group label="To date:" label-for="edit-season-to">
+						<b-form-datepicker id="edit-season-to" v-model="seasonEditForm.to" required></b-form-datepicker>
+					</b-form-group>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<b-form-group label="Price:" label-for="edit-season-price">
+						<b-form-input id="edit-season-price" v-model="seasonEditForm.price" required></b-form-input>
+					</b-form-group>
+				</div>
+				<div class="col">
+					<b-form-group label="Minimal days:" label-for="edit-season-minimalDays">
+						<b-form-input id="edit-season-minimalDays" v-model="seasonEditForm.minimalDays" required></b-form-input>
+					</b-form-group>
+				</div>
+			</div>
+			<b-form-group>
+				<b-form-checkbox v-model="seasonEditForm.flush"></b-form-checkbox>
+				Flush calendar changes
+			</b-form-group>
+			<div class="row">
+				<div class="col">
+					<b-button variant="primary" type="submit" @click="saveSeason">Save</b-button>
+				</div>
+				<div class="col text-right">
+					<b-button variant="danger" @click="removeSeason(seasonEditForm.id)">Remove</b-button>
+				</div>
+			</div>
+		</b-form>
+	</b-modal>
 </div>`,
 	data() {
 		return {
@@ -190,6 +249,7 @@ Vue.component('calendar-default', {
 				date: null
 			},
 			seasonForm: {},
+			seasonEditForm: {},
 			seasonFormDefault: {
 				name: 'Season',
 				description: null,
@@ -197,11 +257,23 @@ Vue.component('calendar-default', {
 				to: null,
 				price: 0,
 				minimalDays: 1
+			},
+			seasonEditFormDefault: {
+				id: null,
+				name: null,
+				description: null,
+				from: null,
+				to: null,
+				price: null,
+				minimalDays: null,
+				active: false,
+				flush: false
 			}
 		}
 	},
 	mounted() {
 		this.seasonForm = this.seasonFormDefault;
+		this.seasonEditForm = this.seasonEditFormDefault;
 		this.sync();
 	},
 	methods: {
@@ -239,6 +311,31 @@ Vue.component('calendar-default', {
 			axiosApi.get('reservation-season/season-set-active?id=' + id).then(req => {
 				this.sync();
 			})
+		},
+		editSeason(id) {
+			axiosApi.get('reservation-season/detail?id=' + id).then(req => {
+				this.seasonEditForm = req.data;
+			})
+		},
+		saveSeason(event) {
+			event.preventDefault();
+			axiosApi.post('reservation-season/save', this.seasonEditForm).then(req => {
+				this.$bvModal.hide('modal-edit-season');
+				this.sync();
+			}).finally(() => {
+				this.seasonEditForm = this.seasonEditFormDefault;
+			});
+		},
+		removeSeason(id) {
+			if (!confirm('Really?')) {
+				return;
+			}
+			axiosApi.post('reservation-season/remove', {id: id}).then(req => {
+				this.$bvModal.hide('modal-edit-season');
+				this.sync();
+			}).finally(() => {
+				this.seasonEditForm = this.seasonEditFormDefault;
+			});
 		}
 	}
 });

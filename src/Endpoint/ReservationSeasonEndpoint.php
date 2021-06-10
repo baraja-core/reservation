@@ -55,6 +55,9 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		$season->setPrice($price);
 		$season->setMinimalDays($minimalDays);
 		$season->setActive($active);
+		foreach ($season->getDates() as $date) {
+			$date->setSeason(null);
+		}
 
 		$days = $this->calendar->getByInterval($from, $to);
 		if ($days === []) {
@@ -64,9 +67,13 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			if ($flush === false) { // overwrite selected days by given season
 				$dateSeason = $date->getSeason();
 				if ($dateSeason !== null && $dateSeason->getId() !== $id) {
-					$this->sendError(
-						'Season "' . $dateSeason->getName() . '" for date "' . $date->getDate() . '" already exist.',
+					$this->flashMessage(
+						'This interval can not be used: '
+						. 'Date "' . $date->getDate() . '" is blocked, because season '
+						. '"' . $dateSeason->getName() . '" already exist there.',
+						self::FLASH_MESSAGE_ERROR
 					);
+					$this->sendError('Season date is blocked by another season.');
 				}
 			}
 			$date->setSeason($season);

@@ -38,33 +38,31 @@ Vue.component('calendar-default', {
 					</div>
 					<div v-else class="row">
 						<div v-for="season in seasons" class="col-2">
-							<div class="px-2" style="border:1px dotted #aaa">
+							<div class="card px-2 py-1">
 								<b>{{ season.name }}</b>
-								<div class="row">
-									<div class="col">
-										<b>From:</b><br>
-										<span style="font-size:10pt">{{ season.from }}</span>
-									</div>
-									<div class="col text-right">
-										<b>To:</b><br>
-										<span style="font-size:10pt">{{ season.to }}</span>
+								<div class="card px-1">
+									<div class="row">
+										<div class="col">
+											<b>From:</b><br>
+											<span style="font-size:10pt">{{ season.from }}</span>
+										</div>
+										<div class="col text-right">
+											<b>To:</b><br>
+											<span style="font-size:10pt">{{ season.to }}</span>
+										</div>
 									</div>
 								</div>
-								<div style="border-top:1px solid #aaa">
-									Price: {{ season.price }} CZK<br>
-									Minimal days: {{ season.minimalDays }}
-									<div class="container-fluid">
-										<div class="row">
-											<div class="col">
-												Active:
-												<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(season.id)">
-													{{ season.active ? 'YES' : 'NO' }}
-												</b-button>
-											</div>
-											<div class="col-5 text-right">
-												<b-button variant="secondary" size="sm" class="px-2 py-0" v-b-modal.modal-edit-season @click="editSeason(season.id)">Edit</b-button>
-											</div>
-										</div>
+								Price: {{ season.price }} CZK<br>
+								Minimal days: {{ season.minimalDays }}
+								<div class="row">
+									<div class="col">
+										Active:
+										<b-button :variant="season.active ? 'success' : 'danger'" size="sm" class="px-2 py-0" @click="activeSeason(season.id)">
+											{{ season.active ? 'YES' : 'NO' }}
+										</b-button>
+									</div>
+									<div class="col-5 text-right">
+										<b-button variant="secondary" size="sm" class="px-2 py-0" v-b-modal.modal-edit-season @click="editSeason(season.id)">Edit</b-button>
 									</div>
 								</div>
 							</div>

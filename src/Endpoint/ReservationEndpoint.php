@@ -99,8 +99,10 @@ final class ReservationEndpoint extends BaseEndpoint
 				'status' => $reservation->getStatus(),
 				'from' => $reservation->getFrom()
 					->format('d. m. Y'),
+				'fromDate' => $reservation->getFrom(),
 				'to' => $reservation->getTo()
 					->format('d. m. Y'),
+				'toDate' => $reservation->getTo(),
 				'createDate' => $reservation->getCreateDate(),
 				'dates' => $dates,
 				'otherReservationsByCustomer' => $otherReservationsByCustomer,
@@ -112,8 +114,10 @@ final class ReservationEndpoint extends BaseEndpoint
 	public function postUpdateInterval(int $id, \DateTime $from, \DateTime $to): void
 	{
 		$reservation = $this->getReservation($id);
-		$days = $this->calendar->getByInterval($from, $to);
-		foreach ($days as $day) {
+		foreach ($reservation->getDates() as $date) {
+			$date->setReservation(null);
+		}
+		foreach ($this->calendar->getByInterval($from, $to) as $day) {
 			$dayReservation = $day->getReservation();
 			if ($dayReservation !== null && $dayReservation->getId() !== $id) {
 				$this->sendError(

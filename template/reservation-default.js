@@ -1,5 +1,13 @@
 Vue.component('reservation-default', {
 	template: `<cms-default :card="true">
+	<div class="row">
+		<div class="col">
+			<h1>Reservation list</h1>
+		</div>
+		<div class="col-3 text-right">
+			<b-button size="sm" variant="secondary" v-b-modal.modal-configuration>Configuration</b-button>
+		</div>
+	</div>
 	<h1>Reservation list</h1>
 	<b-card>
 		<table class="table table-sm">
@@ -31,6 +39,18 @@ Vue.component('reservation-default', {
 			</tr>
 		</table>
 	</b-card>
+	<b-modal id="modal-configuration" title="Configuration" @shown="syncConfiguration" hide-footer>
+		<b-form-group label="Notification send to:" label-for="configuration-to">
+			<b-form-input id="configuration-to" v-model="configuration.to" required></b-form-input>
+		</b-form-group>
+		<b-form-group label="Notification send copy (can be empty):" label-for="configuration-copy">
+			<b-form-input id="configuration-copy" v-model="configuration.copy" required></b-form-input>
+		</b-form-group>
+		<b-form-group label="Notification subject prefix:" label-for="configuration-subject">
+			<b-form-input id="configuration-subject" v-model="configuration.subject" required></b-form-input>
+		</b-form-group>
+		<b-button variant="primary" @click="saveConfiguration">Save</b-button>
+	</b-modal>
 </cms-default>`,
 	data() {
 		return {
@@ -41,6 +61,11 @@ Vue.component('reservation-default', {
 			},
 			paginator: {
 				page: 1,
+			},
+			configuration: {
+				to: '',
+				copy: '',
+				subject: ''
 			}
 		}
 	},
@@ -59,6 +84,17 @@ Vue.component('reservation-default', {
 					this.items = req.data.items;
 					this.paginator = req.data.paginator;
 				});
+		},
+		syncConfiguration() {
+			axiosApi.get('reservation/notification-configuration')
+				.then(req => {
+					this.configuration = req.data;
+				});
+		},
+		saveConfiguration() {
+			axiosApi.post('reservation/notification-configuration', this.configuration).then(req => {
+				this.$bvModal.hide('modal-configuration');
+			});
 		}
 	}
 });

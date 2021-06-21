@@ -1,5 +1,5 @@
 Vue.component('calendar-default', {
-	template: `<cms-default :card="true">
+	template: `<cms-default>
 	<h1>Reservation calendar</h1>
 	<b-card>
 		<div v-if="calendar === null" class="text-center my-5">

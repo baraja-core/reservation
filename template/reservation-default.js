@@ -1,5 +1,5 @@
 Vue.component('reservation-default', {
-	template: `<cms-default :card="true">
+	template: `<cms-default>
 	<div class="row">
 		<div class="col">
 			<h1>Reservation list</h1>
@@ -8,7 +8,6 @@ Vue.component('reservation-default', {
 			<b-button size="sm" variant="secondary" v-b-modal.modal-configuration>Configuration</b-button>
 		</div>
 	</div>
-	<h1>Reservation list</h1>
 	<b-card>
 		<table class="table table-sm">
 			<tr>

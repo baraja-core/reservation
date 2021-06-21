@@ -190,9 +190,10 @@ final class ReservationEndpoint extends BaseEndpoint
 		string $subject,
 	): void {
 		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);
-		$configuration->save(ReservationManager::NOTIFICATION_TO, $to ?: null);
-		$configuration->save(ReservationManager::NOTIFICATION_COPY, $copy ?: null);
-		$configuration->save(ReservationManager::NOTIFICATION_SUBJECT, $subject ?: null);
+		$configuration->save(ReservationManager::NOTIFICATION_TO, trim($to ?? '') ?: null);
+		$configuration->save(ReservationManager::NOTIFICATION_COPY, trim($copy ?? '') ?: null);
+		$configuration->save(ReservationManager::NOTIFICATION_SUBJECT, trim($subject ?? '') ?: null);
+		$this->flashMessage('Configuration has been saved.', self::FLASH_MESSAGE_SUCCESS);
 		$this->sendOk();
 	}
 

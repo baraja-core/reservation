@@ -1,5 +1,5 @@
 Vue.component('calendar-default', {
-	template: `<div class="my-3">
+	template: `<cms-default :card="true">
 	<h1>Reservation calendar</h1>
 	<b-card>
 		<div v-if="calendar === null" class="text-center my-5">
@@ -236,7 +236,7 @@ Vue.component('calendar-default', {
 			</div>
 		</b-form>
 	</b-modal>
-</div>`,
+</cms-default>`,
 	data() {
 		return {
 			isLoading: true,

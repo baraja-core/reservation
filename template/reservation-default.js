@@ -1,5 +1,5 @@
 Vue.component('reservation-default', {
-	template: `<div class="my-3">
+	template: `<cms-default :card="true">
 	<h1>Reservation list</h1>
 	<b-card>
 		<table class="table table-sm">
@@ -31,7 +31,7 @@ Vue.component('reservation-default', {
 			</tr>
 		</table>
 	</b-card>
-</div>`,
+</cms-default>`,
 	data() {
 		return {
 			count: null,

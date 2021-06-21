@@ -22,6 +22,7 @@ final class ReservationManager
 		NOTIFICATION_COPY = 'notification-copy',
 		NOTIFICATION_SUBJECT = 'notification-subject';
 
+
 	public function __construct(
 		private EntityManager $entityManager,
 		private Calendar $calendar,

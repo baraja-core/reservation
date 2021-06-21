@@ -6,8 +6,10 @@ namespace Baraja\Reservation\Endpoint;
 
 
 use Baraja\Doctrine\EntityManager;
+use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Reservation;
+use Baraja\Reservation\ReservationManager;
 use Baraja\StructuredApi\BaseEndpoint;
 
 final class ReservationEndpoint extends BaseEndpoint
@@ -15,6 +17,7 @@ final class ReservationEndpoint extends BaseEndpoint
 	public function __construct(
 		private EntityManager $entityManager,
 		private Calendar $calendar,
+		private Configuration $configuration,
 	) {
 	}
 
@@ -166,6 +169,30 @@ final class ReservationEndpoint extends BaseEndpoint
 
 		$this->flashMessage('Reservation has been removed.', self::FLASH_MESSAGE_SUCCESS);
 		$this->sendOk();
+	}
+
+
+	public function actionNotificationConfiguration(): void
+	{
+		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);
+
+		$this->sendJson([
+			'to' => $configuration->get(ReservationManager::NOTIFICATION_TO) ?? '',
+			'copy' => $configuration->get(ReservationManager::NOTIFICATION_COPY) ?? '',
+			'subject' => $configuration->get(ReservationManager::NOTIFICATION_SUBJECT) ?? '',
+		]);
+	}
+
+
+	public function postNotificationConfiguration(
+		string $to,
+		string $copy,
+		string $subject,
+	) {
+		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);
+		$configuration->save(ReservationManager::NOTIFICATION_TO, $to ?: null);
+		$configuration->save(ReservationManager::NOTIFICATION_COPY, $copy ?: null);
+		$configuration->save(ReservationManager::NOTIFICATION_SUBJECT, $subject ?: null);
 	}
 
 

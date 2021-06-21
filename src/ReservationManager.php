@@ -16,6 +16,12 @@ use Tracy\ILogger;
 
 final class ReservationManager
 {
+	public const
+		CONFIGURATION_NAMESPACE = 'reservation',
+		NOTIFICATION_TO = 'notification-to',
+		NOTIFICATION_COPY = 'notification-copy',
+		NOTIFICATION_SUBJECT = 'notification-subject';
+
 	public function __construct(
 		private EntityManager $entityManager,
 		private Calendar $calendar,
@@ -119,27 +125,26 @@ final class ReservationManager
 
 	private function sendNotification(Reservation $reservation): void
 	{
-		$to = $this->configuration->get('notification-to', 'reservation');
-		$copy = $this->configuration->get('notification-copy', 'reservation');
+		$configuration = $this->configuration->getSection(self::CONFIGURATION_NAMESPACE);
+
+		$to = $configuration->get(self::NOTIFICATION_TO);
+		$copy = $configuration->get(self::NOTIFICATION_COPY);
 
 		$message = (new Message)
 			->setSubject(
-				($this->configuration->get(
-					'notification-subject',
-					'reservation'
-					) ?: 'New reservation'
-				) . ' | ' . $reservation->getNumber()
+				($configuration->get(self::NOTIFICATION_SUBJECT) ?: 'New reservation')
+				. ' | ' . $reservation->getNumber()
 			)
 			->setBody('New reservation.');
 
 		if ($to !== null && Validators::isEmail($to)) {
-			$message->addTo($this->configuration->get('notification-to', 'reservation'));
+			$message->addTo($to);
 		} else {
 			// Silence error: Notification can not be sent.
 			return;
 		}
 		if ($copy !== null && Validators::isEmail($copy)) {
-			$message->addCc($this->configuration->get('notification-copy', 'reservation'));
+			$message->addCc($copy);
 		}
 
 		$this->emailerAccessor->get()

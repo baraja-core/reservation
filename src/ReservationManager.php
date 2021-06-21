@@ -10,6 +10,9 @@ use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Emailer\EmailerAccessor;
 use Baraja\Reservation\Entity\Reservation;
 use Nette\Mail\Message;
+use Nette\Utils\Validators;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 final class ReservationManager
 {
@@ -70,27 +73,16 @@ final class ReservationManager
 		}
 
 		$this->entityManager->flush();
-		/*$this->emailerAccessor->get()
-			->getEmailServiceByType(
-				ReservationConfirmEmail::class,
-				[
-					'reservation' => $reservation,
-					'subject' => $this->configuration->get(
-						'reservation-success-subject',
-						'reservation'
-					) ?? 'Potvrzení vaší rezervace',
-					'to' => $reservation->getEmail(),
-				],
-			);*/
 
-		$this->emailerAccessor->get()
-			->send(
-				(new Message)
-					->addTo('***')
-					->addCc('****')
-					->setSubject('New reservation | ' . $reservation->getNumber())
-					->setBody('New reservation.')
-			);
+		try {
+			// Notification can fail
+			$this->sendNotification($reservation);
+		} catch (\Throwable $e) {
+			// Silence is golden.
+			if (class_exists(Debugger::class)) {
+				Debugger::log($e, ILogger::CRITICAL);
+			}
+		}
 
 		return $reservation;
 	}
@@ -122,5 +114,35 @@ final class ReservationManager
 		}
 
 		return $return ?? 1;
+	}
+
+
+	private function sendNotification(Reservation $reservation): void
+	{
+		$to = $this->configuration->get('notification-to', 'reservation');
+		$copy = $this->configuration->get('notification-copy', 'reservation');
+
+		$message = (new Message)
+			->setSubject(
+				($this->configuration->get(
+					'notification-subject',
+					'reservation'
+					) ?: 'New reservation'
+				) . ' | ' . $reservation->getNumber()
+			)
+			->setBody('New reservation.');
+
+		if ($to !== null && Validators::isEmail($to)) {
+			$message->addTo($this->configuration->get('notification-to', 'reservation'));
+		} else {
+			// Silence error: Notification can not be sent.
+			return;
+		}
+		if ($copy !== null && Validators::isEmail($copy)) {
+			$message->addCc($this->configuration->get('notification-copy', 'reservation'));
+		}
+
+		$this->emailerAccessor->get()
+			->send($message);
 	}
 }

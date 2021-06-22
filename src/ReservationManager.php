@@ -112,15 +112,37 @@ final class ReservationManager
 	public function countMinimalDays(\DateTime $from, \DateTime $to): int
 	{
 		$return = null;
-		foreach ($this->calendar->getByInterval($from, $to) as $date) {
-			$season = $date->getSeason();
+		foreach ($this->calendar->getByInterval($from, $to) as $regularDate) {
+			$season = $regularDate->getSeason();
 			$days = $season !== null ? $season->getMinimalDays() : 0;
 			if ($return === null || $days > $return) {
 				$return = $days;
 			}
 		}
+		if ($return !== null) { // Check if interval is limited
+			$interval = date_interval_create_from_date_string($return . ' days');
+			if ($interval === false) {
+				throw new \LogicException('Interval "' . $return . ' days" is not valid.');
+			}
+			$maxAvailableArea = 0;
+			$currentAvailableArea = 0;
+			foreach ($this->calendar->getByInterval(date_add($from, $interval), date_add($to, $interval)) as $date) {
+				$currentAvailableArea++;
+				if ($date->isEnable() === true) { // is date available?
+					if ($currentAvailableArea > $maxAvailableArea) {
+						$maxAvailableArea = $currentAvailableArea;
+					}
+				} else {
+					$currentAvailableArea = 0;
+				}
+			}
+			if ($maxAvailableArea >= $return) { // User can change requested area (valid)
+				return $return;
+			}
+			return $maxAvailableArea;
+		}
 
-		return $return ?? 1;
+		return 1;
 	}
 
 

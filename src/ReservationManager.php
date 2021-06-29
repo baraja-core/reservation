@@ -35,7 +35,7 @@ final class ReservationManager
 
 
 	/**
-	 * @param \Baraja\Shop\Product\Entity\Product[] $products
+	 * @param Product[] $products
 	 */
 	public function createReservation(
 		\DateTime $from,

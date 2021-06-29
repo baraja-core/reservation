@@ -38,6 +38,30 @@ Vue.component('reservation-overview', {
 		</div>
 		<div class="row mt-3">
 			<div class="col">
+				<h4>Items:</h4>
+			</div>
+		</div>
+		<div v-if="item.products.length === 0" class="text-center my-5 text-secondary">
+			There are no items.
+		</div>
+		<div v-else class="row">
+			<div class="col">
+				<table class="table table-sm">
+					<tr>
+						<th>Product</th>
+						<th width="150">Quantity</th>
+					</tr>
+					<tr v-for="product in item.products">
+						<td>
+							<a :href="link('Product:detail', {id: product.productId})" target="_blank">{{ product.name }}</a>
+						</td>
+						<td>{{ product.quantity }}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="row mt-3">
+			<div class="col">
 				<h4>Calendar days:</h4>
 			</div>
 			<div class="col-3 text-right">

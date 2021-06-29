@@ -90,6 +90,16 @@ final class ReservationEndpoint extends BaseEndpoint
 			];
 		}
 
+		$products = [];
+		foreach ($reservation->getProductItems() as $productItem) {
+			$products[] = [
+				'id' => $productItem->getId(),
+				'productId' => $productItem->getProduct()->getId(),
+				'name' => $productItem->getProduct()->getName(),
+				'quantity' => $productItem->getQuantity(),
+			];
+		}
+
 		$this->sendJson(
 			[
 				'id' => $reservation->getId(),
@@ -112,6 +122,7 @@ final class ReservationEndpoint extends BaseEndpoint
 				'createDate' => $reservation->getCreateDate(),
 				'dates' => $dates,
 				'otherReservationsByCustomer' => $otherReservationsByCustomer,
+				'products' => $products,
 			]
 		);
 	}

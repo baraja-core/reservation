@@ -1,11 +1,13 @@
 Vue.component('reservation-default', {
 	template: `<cms-default>
-	<div class="row">
-		<div class="col">
-			<h1>Reservation list</h1>
-		</div>
-		<div class="col-3 text-right">
-			<b-button size="sm" variant="secondary" v-b-modal.modal-configuration>Configuration</b-button>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col">
+				<h1>Reservation list</h1>
+			</div>
+			<div class="col-3 text-right">
+				<b-button size="sm" variant="secondary" v-b-modal.modal-configuration>Configuration</b-button>
+			</div>
 		</div>
 	</div>
 	<b-card>
@@ -16,7 +18,7 @@ Vue.component('reservation-default', {
 				<th>Customer</th>
 				<th>From</th>
 				<th>To</th>
-				<th>Statuc</th>
+				<th>Status</th>
 				<th>Price</th>
 			</tr>
 			<tr v-for="item in items">

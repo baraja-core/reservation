@@ -18,7 +18,7 @@ use Nette\Utils\DateTime;
  *     uniqueConstraints={
  *         @UniqueConstraint(name="reservation__date_date", columns={"date", "product_id"})
  *     }
- *	)
+ * )
  */
 class Date
 {

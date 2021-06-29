@@ -25,7 +25,7 @@ final class CalendarEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionDefault(?int $year = null, int $productId): void
+	public function actionDefault(int $productId, ?int $year = null): void
 	{
 		$year ??= (int) date('Y');
 		$calendarDays = $this->calendar->getByIntervalGroupByMonths(

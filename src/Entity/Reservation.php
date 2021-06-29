@@ -65,6 +65,12 @@ class Reservation
 	/** @ORM\Column(type="datetime") */
 	private \DateTimeInterface $createDate;
 
+	/**
+	 * @var ReservationProductItem[]|Collection
+	 * @ORM\OneToMany(targetEntity="ReservationProductItem", mappedBy="reservation")
+	 */
+	private $productItems;
+
 
 	public function __construct(
 		\DateTime $from,
@@ -83,6 +89,7 @@ class Reservation
 		$this->hash = Random::generate(32);
 		$this->createDate = new \DateTime;
 		$this->dates = new ArrayCollection;
+		$this->productItems = new ArrayCollection;
 	}
 
 
@@ -113,9 +120,39 @@ class Reservation
 	}
 
 
+	/**
+	 * @return ReservationProductItem[]|Collection
+	 */
+	public function getProductItems()
+	{
+		return $this->productItems;
+	}
+
+
 	public function addDate(Date $date): void
 	{
 		$this->dates[] = $date;
+	}
+
+
+	public function addItem(ReservationProductItem $item): ReservationProductItem
+	{
+		$exist = null;
+		foreach ($this->productItems as $lastItem) { // Item already exist
+			if ($lastItem->getProduct()->getId() === $item->getProduct()->getId()) {
+				$exist = $lastItem;
+				break;
+			}
+		}
+		if ($exist !== null) {
+			$exist->addQuantity($item->getQuantity());
+
+			return $exist;
+		}
+
+		$this->productItems[] = $item;
+
+		return $item;
 	}
 
 

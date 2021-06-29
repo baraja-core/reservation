@@ -10,7 +10,10 @@ use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Date;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\Entity\Season;
+use Baraja\Shop\Product\Entity\Product;
 use Baraja\StructuredApi\BaseEndpoint;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Nette\Utils\DateTime;
 
 final class CalendarEndpoint extends BaseEndpoint
@@ -22,10 +25,14 @@ final class CalendarEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionDefault(?int $year = null): void
+	public function actionDefault(?int $year = null, int $productId): void
 	{
 		$year ??= (int) date('Y');
-		$calendarDays = $this->calendar->getByIntervalGroupByMonths($year . '-01-01', $year . '-12-31');
+		$calendarDays = $this->calendar->getByIntervalGroupByMonths(
+			from: $year . '-01-01',
+			to: $year . '-12-31',
+			product: $this->getProduct($productId),
+		);
 
 		/** @var Season[] $seasons */
 		$seasons = $this->entityManager->getRepository(Season::class)
@@ -150,5 +157,20 @@ final class CalendarEndpoint extends BaseEndpoint
 					] : null,
 			]
 		);
+	}
+
+
+	private function getProduct(int $id): Product
+	{
+		try {
+			return $this->entityManager->getRepository(Product::class)
+				->createQueryBuilder('p')
+				->where('p.id = :id')
+				->setParameter('id', $id)
+				->getQuery()
+				->getSingleResult();
+		} catch (NoResultException | NonUniqueResultException) {
+			$this->sendError('Product "' . $id . '" does not exist.');
+		}
 	}
 }

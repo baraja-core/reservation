@@ -8,6 +8,7 @@ namespace Baraja\Reservation\Endpoint;
 use Baraja\Doctrine\EntityManager;
 use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Season;
+use Baraja\Shop\Product\Entity\Product;
 use Baraja\StructuredApi\BaseEndpoint;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -59,7 +60,9 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			$date->setSeason(null);
 		}
 
-		$days = $this->calendar->getByInterval($from, $to);
+		$product = $season->getProduct();
+		assert($product !== null);
+		$days = $this->calendar->getByInterval($from, $to, $product);
 		if ($days === []) {
 			$this->sendError('Date interval can not be empty.');
 		}
@@ -92,8 +95,10 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		\DateTime $to,
 		int $price,
 		int $minimalDays,
+		int $productId,
 	): void {
-		$days = $this->calendar->getByInterval($from, $to);
+		$product = $this->getProduct($productId);
+		$days = $this->calendar->getByInterval($from, $to, $product);
 		if ($days === []) {
 			$this->sendError('Date interval can not be empty.');
 		}
@@ -106,7 +111,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			}
 		}
 
-		$season = new Season($price);
+		$season = new Season($price, $product);
 		$season->setName($name);
 		$season->setDescription($description);
 		$season->setMinimalDays($minimalDays);
@@ -165,6 +170,21 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 				->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
 			$this->sendError('Season "' . $id . '" does not exist.');
+		}
+	}
+
+
+	private function getProduct(int $id): Product
+	{
+		try {
+			return $this->entityManager->getRepository(Product::class)
+				->createQueryBuilder('p')
+				->where('p.id = :id')
+				->setParameter('id', $id)
+				->getQuery()
+				->getSingleResult();
+		} catch (NoResultException | NonUniqueResultException) {
+			$this->sendError('Product "' . $id . '" does not exist.');
 		}
 	}
 }

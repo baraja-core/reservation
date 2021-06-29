@@ -6,6 +6,7 @@ namespace Baraja\Reservation\Entity;
 
 
 use Baraja\Doctrine\Identifier\IdentifierUnsigned;
+use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 use Nette\Utils\DateTime;
 
@@ -24,6 +25,9 @@ class Date
 	 */
 	private string $date;
 
+	/** @ORM\ManyToOne(targetEntity="Product") */
+	private Product $product;
+
 	/** @ORM\ManyToOne(targetEntity="Reservation", inversedBy="dates") */
 	private ?Reservation $reservation = null;
 
@@ -31,10 +35,11 @@ class Date
 	private ?Season $season = null;
 
 
-	public function __construct(string|\DateTimeInterface $date)
+	public function __construct(string|\DateTimeInterface $date, Product $product)
 	{
 		$this->date = DateTime::from($date)
 			->format('Y-m-d');
+		$this->product = $product;
 	}
 
 
@@ -54,6 +59,12 @@ class Date
 			? $this->date
 			: $this->getDateType()
 				->format($format);
+	}
+
+
+	public function getProduct(): Product
+	{
+		return $this->product;
 	}
 
 

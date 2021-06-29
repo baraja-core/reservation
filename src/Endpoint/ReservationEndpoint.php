@@ -10,7 +10,10 @@ use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\ReservationManager;
+use Baraja\Shop\Product\Entity\Product;
 use Baraja\StructuredApi\BaseEndpoint;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 
 final class ReservationEndpoint extends BaseEndpoint
 {
@@ -114,13 +117,13 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
-	public function postUpdateInterval(int $id, \DateTime $from, \DateTime $to): void
+	public function postUpdateInterval(int $id, \DateTime $from, \DateTime $to, int $productId): void
 	{
 		$reservation = $this->getReservation($id);
 		foreach ($reservation->getDates() as $date) {
 			$date->setReservation(null);
 		}
-		foreach ($this->calendar->getByInterval($from, $to) as $day) {
+		foreach ($this->calendar->getByInterval($from, $to, $this->getProduct($productId)) as $day) {
 			$dayReservation = $day->getReservation();
 			if ($dayReservation !== null && $dayReservation->getId() !== $id) {
 				$this->sendError(
@@ -139,10 +142,10 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionMinimalDays(\DateTime $from, \DateTime $to): void
+	public function actionMinimalDays(\DateTime $from, \DateTime $to, int $productId): void
 	{
 		$return = null;
-		foreach ($this->calendar->getByInterval($from, $to) as $date) {
+		foreach ($this->calendar->getByInterval($from, $to, $this->getProduct($productId)) as $date) {
 			$season = $date->getSeason();
 			$days = $season !== null ? $season->getMinimalDays() : 0;
 			if ($return === null || $days > $return) {
@@ -232,5 +235,20 @@ final class ReservationEndpoint extends BaseEndpoint
 		return $selection
 			->getQuery()
 			->getResult();
+	}
+
+
+	private function getProduct(int $id): Product
+	{
+		try {
+			return $this->entityManager->getRepository(Product::class)
+				->createQueryBuilder('p')
+				->where('p.id = :id')
+				->setParameter('id', $id)
+				->getQuery()
+				->getSingleResult();
+		} catch (NoResultException | NonUniqueResultException) {
+			$this->sendError('Product "' . $id . '" does not exist.');
+		}
 	}
 }

@@ -6,6 +6,7 @@ namespace Baraja\Reservation\Entity;
 
 
 use Baraja\Doctrine\Identifier\IdentifierUnsigned;
+use Baraja\Shop\Product\Entity\Product;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Nette\Utils\Strings;
@@ -33,6 +34,9 @@ class Season
 	/** @ORM\Column(type="boolean") */
 	private bool $active = false;
 
+	/** @ORM\ManyToOne(targetEntity="Product") */
+	private ?Product $product = null;
+
 	/**
 	 * @var Date[]|Collection
 	 * @ORM\OneToMany(targetEntity="Date", mappedBy="season")
@@ -40,9 +44,10 @@ class Season
 	private $dates;
 
 
-	public function __construct(int $price)
+	public function __construct(int $price, ?Product $product = null)
 	{
 		$this->setPrice($price);
+		$this->setProduct($product);
 	}
 
 
@@ -54,7 +59,7 @@ class Season
 
 	public function setName(string $name): void
 	{
-		$this->name = Strings::firstUpper(trim($name));
+		$this->name = Strings::firstUpper(trim($name)) ?: 'Season';
 	}
 
 
@@ -198,5 +203,17 @@ class Season
 	public function addDate(Date $date): void
 	{
 		$this->dates[] = $date;
+	}
+
+
+	public function getProduct(): ?Product
+	{
+		return $this->product;
+	}
+
+
+	public function setProduct(?Product $product): void
+	{
+		$this->product = $product;
 	}
 }

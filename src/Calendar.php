@@ -7,6 +7,7 @@ namespace Baraja\Reservation;
 
 use Baraja\Doctrine\EntityManager;
 use Baraja\Reservation\Entity\Date;
+use Baraja\Shop\Product\Entity\Product;
 use Nette\Utils\DateTime;
 
 final class Calendar
@@ -20,7 +21,7 @@ final class Calendar
 	/**
 	 * @return array<string, Date>
 	 */
-	public function getCalendarMonth(int $year, int $month): array
+	public function getCalendarMonth(int $year, int $month, Product $product): array
 	{
 		$daysCount = cal_days_in_month(0, $month, $year);
 
@@ -29,7 +30,7 @@ final class Calendar
 			$dates[] = Date::formatDate($year, $month, $day);
 		}
 
-		return $this->getByDates($dates);
+		return $this->getByDates($dates, $product);
 	}
 
 
@@ -42,24 +43,24 @@ final class Calendar
 	/**
 	 * @return array<string, Date>
 	 */
-	public function getByInterval(\DateTime|string $from, \DateTime|string $to): array
+	public function getByInterval(\DateTime|string $from, \DateTime|string $to, Product $product): array
 	{
 		$dates = [];
 		foreach ($this->getDatePeriod($from, $to) as $value) {
 			$dates[] = $value->format('Y-m-d');
 		}
 
-		return $this->getByDates($dates);
+		return $this->getByDates($dates, $product);
 	}
 
 
 	/**
 	 * @return array<string, array<int, Date>>
 	 */
-	public function getByIntervalGroupByMonths(\DateTime|string $from, \DateTime|string $to): array
+	public function getByIntervalGroupByMonths(\DateTime|string $from, \DateTime|string $to, Product $product): array
 	{
 		$return = [];
-		foreach ($this->getByInterval($from, $to) as $date) {
+		foreach ($this->getByInterval($from, $to, $product) as $date) {
 			$return[$date->getDate('Y-m')][] = $date;
 		}
 
@@ -71,7 +72,7 @@ final class Calendar
 	 * @param array<int, string> $dates
 	 * @return array<string, Date>
 	 */
-	public function getByDates(array $dates): array
+	public function getByDates(array $dates, Product $product): array
 	{
 		static $cache = [];
 		$hash = implode(',', $dates);
@@ -80,7 +81,9 @@ final class Calendar
 			$cache[$hash] = $this->entityManager->getRepository(Date::class)
 				->createQueryBuilder('d')
 				->where('d.date IN (:dates)')
+				->andWhere('d.product = :productId')
 				->setParameter('dates', $dates)
+				->setParameter('productId', $product->getId())
 				->orderBy('d.date', 'ASC')
 				->getQuery()
 				->getResult();
@@ -97,7 +100,7 @@ final class Calendar
 		$needFlush = false;
 		foreach ($dates as $date) { // fast check
 			if (isset($return[$date]) === false) { // create date entity
-				$dateEntity = new Date($date);
+				$dateEntity = new Date($date, $product);
 				$this->entityManager->persist($dateEntity);
 				$return[$date] = $dateEntity;
 				$needFlush = true;

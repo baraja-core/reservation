@@ -10,6 +10,7 @@
 	],
 	"require": {
 		"php": "^8.0",
+		"baraja-core/shop-product": "^1.0",
 		"baraja-core/plugin-system": "^2.0",
 		"baraja-core/phone-number": "^1.0",
 		"baraja-core/url": "^1.1",

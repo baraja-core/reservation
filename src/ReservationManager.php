@@ -9,6 +9,8 @@ use Baraja\Doctrine\EntityManager;
 use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Emailer\EmailerAccessor;
 use Baraja\Reservation\Entity\Reservation;
+use Baraja\Reservation\Entity\ReservationProductItem;
+use Baraja\Shop\Product\Entity\Product;
 use Nette\Mail\Message;
 use Nette\Utils\Validators;
 use Tracy\Debugger;
@@ -32,42 +34,55 @@ final class ReservationManager
 	}
 
 
+	/**
+	 * @param \Baraja\Shop\Product\Entity\Product[] $products
+	 */
 	public function createReservation(
 		\DateTime $from,
 		\DateTime $to,
 		?string $firstName,
 		?string $lastName,
 		string $email,
-		?string $phone = null
+		?string $phone = null,
+		array $products = [],
 	): Reservation {
-		$days = $this->calendar->getByInterval($from, $to);
-		$minDays = $this->countMinimalDays($from, $to);
-		if (count($days) < $minDays) {
-			throw new \InvalidArgumentException(
-				'Minimální možná rezervace je omezena. Vyberte aspoň tento počet dnů: ' . $minDays,
-			);
+		if ($products === []) {
+			throw new \InvalidArgumentException('Product array can not be empty.');
 		}
-		foreach ($days as $day) {
-			if ($day->isEnable() === false) { // check duplicity
+		$price = 0;
+		$reservedDays = [];
+		foreach ($products as $product) {
+			$days = $this->calendar->getByInterval($from, $to, $product);
+			$minDays = $this->countMinimalDays($from, $to, $product);
+			if (count($days) < $minDays) {
 				throw new \InvalidArgumentException(
-					'Tento interval nelze použít, protože existuje ve vašem intervalu jiná rezervace, '
-					. 'která blokuje objednávku. Prosím, vyberte jiný volný interval.',
+					'Minimální možná rezervace je omezena. Vyberte aspoň tento počet dnů: ' . $minDays,
 				);
 			}
-			$season = $day->getSeason();
-			if ($season !== null && $season->isActive() === false) {
-				throw new \InvalidArgumentException(
-					'Rezervace pro den "' . $day->getDate() . '" není možná, '
-					. 'protože patří do vyprodané sezóny. '
-					. 'Zkuste vybrat jiný volný termín, nebo nás kontaktujte.',
-				);
+			foreach ($days as $day) {
+				if ($day->isEnable() === false) { // check duplicity
+					throw new \InvalidArgumentException(
+						'Tento interval nelze použít, protože existuje ve vašem intervalu jiná rezervace, '
+						. 'která blokuje objednávku. Prosím, vyberte jiný volný interval.',
+					);
+				}
+				$season = $day->getSeason();
+				if ($season !== null && $season->isActive() === false) {
+					throw new \InvalidArgumentException(
+						'Rezervace pro den "' . $day->getDate() . '" není možná, '
+						. 'protože patří do vyprodané sezóny. '
+						. 'Zkuste vybrat jiný volný termín, nebo nás kontaktujte.',
+					);
+				}
 			}
+			$price += $this->countDaysPrice($from, $to, $product);
+			$reservedDays[] = $days;
 		}
 
 		$reservation = new Reservation(
 			$from,
 			$to,
-			$this->countDaysPrice($from, $to),
+			$price,
 			$firstName,
 			$lastName,
 			$email
@@ -75,8 +90,12 @@ final class ReservationManager
 		$reservation->setPhone($phone);
 		$this->entityManager->persist($reservation);
 
-		foreach ($days as $day) {
+		foreach (array_merge([], ...$reservedDays) as $day) {
 			$day->setReservation($reservation);
+		}
+		foreach ($products as $product) {
+			$productItem = new ReservationProductItem($reservation, $product);
+			$this->entityManager->persist($reservation->addItem($productItem));
 		}
 
 		$this->entityManager->flush();
@@ -95,10 +114,10 @@ final class ReservationManager
 	}
 
 
-	public function countDaysPrice(\DateTime $from, \DateTime $to): int
+	public function countDaysPrice(\DateTime $from, \DateTime $to, Product $product): int
 	{
 		$sum = 0;
-		foreach ($this->calendar->getByInterval($from, $to) as $date) {
+		foreach ($this->calendar->getByInterval($from, $to, $product) as $date) {
 			$season = $date->getSeason();
 			if ($season !== null) {
 				$sum += $season->getPrice();
@@ -109,10 +128,10 @@ final class ReservationManager
 	}
 
 
-	public function countMinimalDays(\DateTime $from, \DateTime $to): int
+	public function countMinimalDays(\DateTime $from, \DateTime $to, Product $product): int
 	{
 		$return = null;
-		foreach ($this->calendar->getByInterval($from, $to) as $regularDate) {
+		foreach ($this->calendar->getByInterval($from, $to, $product) as $regularDate) {
 			$season = $regularDate->getSeason();
 			$days = $season !== null ? $season->getMinimalDays() : 0;
 			if ($return === null || $days > $return) {
@@ -126,7 +145,12 @@ final class ReservationManager
 			}
 			$maxAvailableArea = 0;
 			$currentAvailableArea = 0;
-			foreach ($this->calendar->getByInterval(date_add($from, $interval), date_add($to, $interval)) as $date) {
+			$dates = $this->calendar->getByInterval(
+				from: date_add($from, $interval),
+				to: date_add($to, $interval),
+				product: $product,
+			);
+			foreach ($dates as $date) {
 				$currentAvailableArea++;
 				if ($date->isEnable() === true) { // is date available?
 					if ($currentAvailableArea > $maxAvailableArea) {

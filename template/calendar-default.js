@@ -18,6 +18,9 @@ Vue.component('calendar-default', {
 			</div>
 			<div v-else class="text-center my-5 text-secondary">
 				Please select product first.
+				<div class="text-center my-3">
+					<b-form-select :options="productList" v-model="productId" style="max-width:500px"></b-form-select>
+				</div>
 			</div>
 		</template>
 		<div v-if="productId !== null && calendar === null" class="text-center my-5">

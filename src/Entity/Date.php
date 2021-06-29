@@ -8,11 +8,17 @@ namespace Baraja\Reservation\Entity;
 use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Nette\Utils\DateTime;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="reservation__date")
+ * @ORM\Table(
+ *     name="reservation__date",
+ *     uniqueConstraints={
+ *         @UniqueConstraint(name="reservation__date_date", columns={"date", "product_id"})
+ *     }
+ *	)
  */
 class Date
 {
@@ -21,11 +27,11 @@ class Date
 	/**
 	 * Date in format "YYYY-MM-DD".
 	 *
-	 * @ORM\Column(type="string", length=10, unique=true)
+	 * @ORM\Column(type="string", length=10)
 	 */
 	private string $date;
 
-	/** @ORM\ManyToOne(targetEntity="Product") */
+	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
 	private Product $product;
 
 	/** @ORM\ManyToOne(targetEntity="Reservation", inversedBy="dates") */

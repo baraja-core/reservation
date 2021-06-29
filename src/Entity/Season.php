@@ -34,7 +34,7 @@ class Season
 	/** @ORM\Column(type="boolean") */
 	private bool $active = false;
 
-	/** @ORM\ManyToOne(targetEntity="Product") */
+	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
 	private ?Product $product = null;
 
 	/**

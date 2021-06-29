@@ -23,6 +23,7 @@ class ReservationProductItem
 	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
 	private Product $product;
 
+	/** @ORM\Column(type="integer") */
 	private int $quantity;
 
 

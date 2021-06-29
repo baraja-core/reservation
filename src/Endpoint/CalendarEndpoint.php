@@ -25,6 +25,27 @@ final class CalendarEndpoint extends BaseEndpoint
 	}
 
 
+	public function actionProductList(): void
+	{
+		/** @var Product[] $products */
+		$products = $this->entityManager->getRepository(Product::class)
+			->createQueryBuilder('p')
+			->getQuery()
+			->getResult();
+
+		$return = [];
+		$return[null] = '-- Select product --';
+		foreach ($products as $product) {
+			$id = $product->getId();
+			$return[$id] = '(' . $id . ') ' . $product->getName();
+		}
+
+		$this->sendJson([
+			'products' => $this->formatBootstrapSelectArray($return),
+		]);
+	}
+
+
 	public function actionDefault(int $productId, ?int $year = null): void
 	{
 		$year ??= (int) date('Y');
@@ -40,7 +61,9 @@ final class CalendarEndpoint extends BaseEndpoint
 			->select('season, day')
 			->leftJoin('season.dates', 'day')
 			->where('day.date LIKE :datePattern')
+			->andWhere('season.product = :productId')
 			->setParameter('datePattern', $year . '-%')
+			->setParameter('productId', $productId)
 			->orderBy('day.date', 'ASC')
 			->getQuery()
 			->getResult();
@@ -49,8 +72,11 @@ final class CalendarEndpoint extends BaseEndpoint
 			->createQueryBuilder('reservation')
 			->select('reservation, day')
 			->leftJoin('reservation.dates', 'day')
+			->leftJoin('reservation.productItems', 'productItem')
 			->where('day.date LIKE :datePattern')
+			->andWhere('productItem.product = :productId')
 			->setParameter('datePattern', $year . '-%')
+			->setParameter('productId', $productId)
 			->orderBy('day.date', 'DESC')
 			->getQuery()
 			->getResult();
@@ -114,7 +140,7 @@ final class CalendarEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionDetail(string $date): void
+	public function actionDetail(int $productId, string $date): void
 	{
 		/** @var Date $entity */
 		$entity = $this->entityManager->getRepository(Date::class)
@@ -123,11 +149,9 @@ final class CalendarEndpoint extends BaseEndpoint
 			->leftJoin('date.reservation', 'reservation')
 			->leftJoin('date.season', 'season')
 			->where('date.date = :date')
-			->setParameter(
-				'date',
-				DateTime::from($date)
-					->format('Y-m-d')
-			)
+			->andWhere('date.product = :productId')
+			->setParameter('date', DateTime::from($date)->format('Y-m-d'))
+			->setParameter('productId', $productId)
 			->getQuery()
 			->getSingleResult();
 

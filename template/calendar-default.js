@@ -1,11 +1,30 @@
 Vue.component('calendar-default', {
 	template: `<cms-default>
-	<h1>Reservation calendar</h1>
-	<b-card>
-		<div v-if="calendar === null" class="text-center my-5">
-			<b-spinner></b-spinner>
+	<div class="container-fluid mt-2">
+		<div class="row">
+			<div class="col">
+				<h1>Reservation calendar</h1>
+			</div>
+			<div v-if="productList !== null" class="col-4">
+				<b-form-select :options="productList" v-model="productId"></b-form-select>
+			</div>
 		</div>
-		<div v-else class="container-fluid">
+	</div>
+	<b-card>
+		<template v-if="productId === null">
+			<div v-if="productList === null"" class="text-center my-5">
+				<b-spinner></b-spinner><br>
+				Syncing...
+			</div>
+			<div v-else class="text-center my-5 text-secondary">
+				Please select product first.
+			</div>
+		</template>
+		<div v-if="productId !== null && calendar === null" class="text-center my-5">
+			<b-spinner></b-spinner><br>
+			Downloading...
+		</div>
+		<div v-if="productId !== null && calendar !== null" class="container-fluid">
 			<div class="row">
 				<div class="col text-left">
 					<b-button @click="changeYear(year - 1)" size="sm">{{ year - 1 }}</b-button>
@@ -240,6 +259,8 @@ Vue.component('calendar-default', {
 	data() {
 		return {
 			isLoading: true,
+			productId: null,
+			productList: null,
 			year: null,
 			calendar: null,
 			seasons: null,
@@ -271,21 +292,26 @@ Vue.component('calendar-default', {
 		}
 	},
 	mounted() {
+		axiosApi.get('calendar/product-list').then(req => {
+			this.productList = req.data.products;
+		});
 		this.seasonForm = this.seasonFormDefault;
 		this.seasonEditForm = this.seasonEditFormDefault;
 		this.sync();
 	},
 	methods: {
 		sync() {
-			this.$nextTick(() => {
-				axiosApi.get('calendar?year=' + this.year).then(req => {
-					this.isLoading = false;
-					let data = req.data;
-					this.year = data.year;
-					this.calendar = data.calendar;
-					this.seasons = data.seasons;
-				})
-			})
+			if (this.productId !== null) {
+				this.$nextTick(() => {
+					axiosApi.get('calendar?productId=' + this.productId + '&year=' + this.year).then(req => {
+						this.isLoading = false;
+						let data = req.data;
+						this.year = data.year;
+						this.calendar = data.calendar;
+						this.seasons = data.seasons;
+					})
+				});
+			}
 		},
 		changeYear(year) {
 			this.year = year;
@@ -293,7 +319,7 @@ Vue.component('calendar-default', {
 		},
 		loadDate(date) {
 			this.dateInfo.loading = true;
-			axiosApi.get('calendar/detail?date=' + date).then(req => {
+			axiosApi.get('calendar/detail?productId=' + this.productId + '&date=' + date).then(req => {
 				this.dateInfo = req.data;
 			})
 		},
@@ -335,6 +361,13 @@ Vue.component('calendar-default', {
 			}).finally(() => {
 				this.seasonEditForm = this.seasonEditFormDefault;
 			});
+		}
+	},
+	watch: {
+		productId: function() {
+			this.isLoading = true;
+			this.calendar = null;
+			this.sync();
 		}
 	}
 });

@@ -178,6 +178,9 @@ final class ReservationEndpoint extends BaseEndpoint
 		foreach ($reservation->getDates() as $date) {
 			$date->setReservation(null);
 		}
+		foreach ($reservation->getProductItems() as $productItem) {
+			$this->entityManager->remove($productItem);
+		}
 		$this->entityManager->remove($reservation);
 		$this->entityManager->flush();
 

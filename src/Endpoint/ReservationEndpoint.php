@@ -189,6 +189,20 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
+	public function postRemoveProductItem(int $id, int $productItemId): void
+	{
+		$reservation = $this->getReservation($id);
+		foreach ($reservation->getProductItems() as $productItem) {
+			if ($productItem->getId() === $productItemId) {
+				$this->entityManager->remove($productItem);
+			}
+		}
+		$this->entityManager->flush();
+		$this->flashMessage('Product item has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->sendOk();
+	}
+
+
 	public function actionNotificationConfiguration(): void
 	{
 		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);

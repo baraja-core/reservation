@@ -50,12 +50,16 @@ Vue.component('reservation-overview', {
 					<tr>
 						<th>Product</th>
 						<th width="150">Quantity</th>
+						<th width="150"></th>
 					</tr>
 					<tr v-for="product in item.products">
 						<td>
 							<a :href="link('Product:detail', {id: product.productId})" target="_blank">{{ product.name }}</a>
 						</td>
 						<td>{{ product.quantity }}</td>
+						<td>
+							<b-button variant="danger" size="sm" @click="removeProductItem(product.id)">x</b-button>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -148,11 +152,22 @@ Vue.component('reservation-overview', {
 			});
 		},
 		storno() {
-			if (!confirm('Really? Reservation will be removed from database.')) {
+			if (!confirm('Really? Reservation will be removed from the database.')) {
 				return;
 			}
 			axiosApi.post('reservation/remove', {id: this.id}).then(req => {
 				window.location.replace(link('Reservation:default'));
+			});
+		},
+		removeProductItem(id) {
+			if (!confirm('Really? Relation between reservation and product will be removed from the database.')) {
+				return;
+			}
+			axiosApi.post('reservation/remove-product-item', {
+				id: this.id,
+				productItemId: id
+			}).then(req => {
+				this.sync();
 			});
 		}
 	}

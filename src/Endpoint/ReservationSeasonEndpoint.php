@@ -22,9 +22,9 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionDetail(int $id): void
+	public function actionDetail(int $id, int $productId): void
 	{
-		$season = $this->getSeason($id);
+		$season = $this->getSeason($id, $productId);
 		$this->sendJson([
 			'id' => $id,
 			'name' => $season->getName(),
@@ -41,6 +41,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 
 	public function postSave(
 		int $id,
+		int $productId,
 		string $name,
 		?string $description,
 		\DateTime $from,
@@ -50,7 +51,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		bool $active,
 		bool $flush = false,
 	): void {
-		$season = $this->getSeason($id);
+		$season = $this->getSeason($id, $productId);
 		$season->setName($name);
 		$season->setDescription($description);
 		$season->setPrice($price);
@@ -159,15 +160,20 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 	}
 
 
-	private function getSeason(int $id): Season
+	private function getSeason(int $id, ?int $productId = null): Season
 	{
+		$selection = $this->entityManager->getRepository(Season::class)
+			->createQueryBuilder('s')
+			->where('s.id = :id')
+			->setParameter('id', $id);
+
+		if ($productId !== null) {
+			$selection->andWhere('s.product = :productId')
+				->setParameter('productId', $productId);
+		}
+
 		try {
-			return $this->entityManager->getRepository(Season::class)
-				->createQueryBuilder('s')
-				->where('s.id = :id')
-				->setParameter('id', $id)
-				->getQuery()
-				->getSingleResult();
+			return $selection->getQuery()->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
 			$this->sendError('Season "' . $id . '" does not exist.');
 		}

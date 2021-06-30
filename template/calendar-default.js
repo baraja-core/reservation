@@ -272,34 +272,15 @@ Vue.component('calendar-default', {
 				date: null
 			},
 			seasonForm: {},
-			seasonEditForm: {},
-			seasonFormDefault: {
-				name: 'Season',
-				description: null,
-				from: null,
-				to: null,
-				price: 0,
-				minimalDays: 1
-			},
-			seasonEditFormDefault: {
-				id: null,
-				name: null,
-				description: null,
-				from: null,
-				to: null,
-				price: null,
-				minimalDays: null,
-				active: false,
-				flush: false
-			}
+			seasonEditForm: {}
 		}
 	},
 	mounted() {
 		axiosApi.get('calendar/product-list').then(req => {
 			this.productList = req.data.products;
 		});
-		this.seasonForm = this.seasonFormDefault;
-		this.seasonEditForm = this.seasonEditFormDefault;
+		this.seasonForm = this.getSeasonFormDefault();
+		this.seasonEditForm = this.getSeasonEditFormDefault();
 		this.sync();
 	},
 	methods: {
@@ -332,7 +313,7 @@ Vue.component('calendar-default', {
 				this.$bvModal.hide('modal-new-season');
 				this.sync();
 			}).finally(() => {
-				this.seasonForm = this.seasonFormDefault;
+				this.seasonForm = this.getSeasonFormDefault();
 			});
 		},
 		activeSeason(id) {
@@ -341,7 +322,7 @@ Vue.component('calendar-default', {
 			})
 		},
 		editSeason(id) {
-			axiosApi.get('reservation-season/detail?id=' + id).then(req => {
+			axiosApi.get('reservation-season/detail?id=' + id + '&productId=' + this.productId).then(req => {
 				this.seasonEditForm = req.data;
 			})
 		},
@@ -351,25 +332,52 @@ Vue.component('calendar-default', {
 				this.$bvModal.hide('modal-edit-season');
 				this.sync();
 			}).finally(() => {
-				this.seasonEditForm = this.seasonEditFormDefault;
+				this.seasonEditForm = this.getSeasonEditFormDefault();
 			});
 		},
 		removeSeason(id) {
-			if (!confirm('Really?')) {
+			if (!confirm('Do you really want to remove this season?')) {
 				return;
 			}
 			axiosApi.post('reservation-season/remove', {id: id}).then(req => {
 				this.$bvModal.hide('modal-edit-season');
 				this.sync();
 			}).finally(() => {
-				this.seasonEditForm = this.seasonEditFormDefault;
+				this.seasonEditForm = this.getSeasonEditFormDefault();
 			});
+		},
+		getSeasonFormDefault() {
+			return {
+				productId: this.productId,
+				name: 'Season',
+				description: null,
+				from: null,
+				to: null,
+				price: 0,
+				minimalDays: 1
+			};
+		},
+		getSeasonEditFormDefault() {
+			return {
+				id: null,
+				productId: this.productId,
+				name: null,
+				description: null,
+				from: null,
+				to: null,
+				price: null,
+				minimalDays: null,
+				active: false,
+				flush: false
+			};
 		}
 	},
 	watch: {
 		productId: function() {
 			this.isLoading = true;
 			this.calendar = null;
+			this.seasonForm = this.getSeasonFormDefault();
+			this.seasonEditForm = this.getSeasonEditFormDefault();
 			this.sync();
 		}
 	}

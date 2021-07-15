@@ -13,10 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Nette\Utils\Random;
 use Nette\Utils\Strings;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="reservation__reservation")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'reservation__reservation')]
 class Reservation
 {
 	use IdentifierUnsigned;
@@ -26,49 +24,45 @@ class Reservation
 		STATUS_PAID = 'paid',
 		STATUS_STORNO = 'storno';
 
-	/**
-	 * @var Date[]|Collection
-	 * @ORM\OneToMany(targetEntity="Date", mappedBy="reservation")
-	 */
+	/** @var Date[]|Collection */
+	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Date::class)]
 	private $dates;
 
-	/** @ORM\Column(type="date", name="`from`") */
+	#[ORM\Column(name: '`from`', type: 'date')]
 	private \DateTimeInterface $from;
 
-	/** @ORM\Column(type="date", name="`to`") */
+	#[ORM\Column(name: '`to`', type: 'date')]
 	private \DateTimeInterface $to;
 
-	/** @ORM\Column(type="integer") */
+	#[ORM\Column(type: 'integer')]
 	private int $price;
 
-	/** @ORM\Column(type="string", length=24, nullable=true) */
+	#[ORM\Column(type: 'string', length: 24, nullable: true)]
 	private ?string $number = null;
 
-	/** @ORM\Column(type="string", length=16) */
+	#[ORM\Column(type: 'string', length: 16)]
 	private string $status = self::STATUS_NEW;
 
-	/** @ORM\Column(type="string", length=32, unique=true) */
+	#[ORM\Column(type: 'string', length: 32, unique: true)]
 	private string $hash;
 
-	/** @ORM\Column(type="string", length=32, nullable=true) */
+	#[ORM\Column(type: 'string', length: 32, nullable: true)]
 	private ?string $firstName;
 
-	/** @ORM\Column(type="string", length=32, nullable=true) */
+	#[ORM\Column(type: 'string', length: 32, nullable: true)]
 	private ?string $lastName;
 
-	/** @ORM\Column(type="string", length=128) */
+	#[ORM\Column(type: 'string', length: 128)]
 	private string $email;
 
-	/** @ORM\Column(type="string", length=16, nullable=true) */
+	#[ORM\Column(type: 'string', length: 16, nullable: true)]
 	private ?string $phone = null;
 
-	/** @ORM\Column(type="datetime") */
+	#[ORM\Column(type: 'datetime')]
 	private \DateTimeInterface $createDate;
 
-	/**
-	 * @var ReservationProductItem[]|Collection
-	 * @ORM\OneToMany(targetEntity="ReservationProductItem", mappedBy="reservation")
-	 */
+	/** @var ReservationProductItem[]|Collection */
+	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: ReservationProductItem::class)]
 	private $productItems;
 
 

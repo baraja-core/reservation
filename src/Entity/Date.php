@@ -11,33 +11,24 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Nette\Utils\DateTime;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(
- *     name="reservation__date",
- *     uniqueConstraints={
- *         @UniqueConstraint(name="reservation__date_date", columns={"date", "product_id"})
- *     }
- * )
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'reservation__date')]
+#[UniqueConstraint(name: 'reservation__date_date', columns: ['date', 'product_id'])]
 class Date
 {
 	use IdentifierUnsigned;
 
-	/**
-	 * Date in format "YYYY-MM-DD".
-	 *
-	 * @ORM\Column(type="string", length=10)
-	 */
+	/** Date in format "YYYY-MM-DD". */
+	#[ORM\Column(type: 'string', length: 10)]
 	private string $date;
 
-	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
+	#[ORM\ManyToOne(targetEntity: Product::class)]
 	private Product $product;
 
-	/** @ORM\ManyToOne(targetEntity="Reservation", inversedBy="dates") */
+	#[ORM\ManyToOne(targetEntity: Reservation::class, inversedBy: 'dates')]
 	private ?Reservation $reservation = null;
 
-	/** @ORM\ManyToOne(targetEntity="Season", inversedBy="dates") */
+	#[ORM\ManyToOne(targetEntity: Season::class, inversedBy: 'dates')]
 	private ?Season $season = null;
 
 

@@ -9,21 +9,19 @@ use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="reservation__reservation_product_item")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'reservation__reservation_product_item')]
 class ReservationProductItem
 {
 	use IdentifierUnsigned;
 
-	/** @ORM\ManyToOne(targetEntity="Reservation", inversedBy="productItems") */
+	#[ORM\ManyToOne(targetEntity: Reservation::class, inversedBy: 'productItems')]
 	private Reservation $reservation;
 
-	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
+	#[ORM\ManyToOne(targetEntity: Product::class)]
 	private Product $product;
 
-	/** @ORM\Column(type="integer") */
+	#[ORM\Column(type: 'integer')]
 	private int $quantity;
 
 

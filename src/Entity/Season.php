@@ -11,36 +11,32 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Nette\Utils\Strings;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="reservation__season")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'reservation__season')]
 class Season
 {
 	use IdentifierUnsigned;
 
-	/** @ORM\Column(type="string") */
+	#[ORM\Column(type: 'string')]
 	private string $name = 'Season';
 
-	/** @ORM\Column(type="text", nullable=true) */
+	#[ORM\Column(type: 'text', nullable: true)]
 	private ?string $description = null;
 
-	/** @ORM\Column(type="integer") */
+	#[ORM\Column(type: 'integer')]
 	private int $price;
 
-	/** @ORM\Column(type="integer") */
+	#[ORM\Column(type: 'integer')]
 	private int $minimalDays = 1;
 
-	/** @ORM\Column(type="boolean") */
+	#[ORM\Column(type: 'boolean')]
 	private bool $active = false;
 
-	/** @ORM\ManyToOne(targetEntity="\Baraja\Shop\Product\Entity\Product") */
+	#[ORM\ManyToOne(targetEntity: Product::class)]
 	private ?Product $product = null;
 
-	/**
-	 * @var Date[]|Collection
-	 * @ORM\OneToMany(targetEntity="Date", mappedBy="season")
-	 */
+	/** @var Date[]|Collection */
+	#[ORM\OneToMany(mappedBy: 'season', targetEntity: Date::class)]
 	private $dates;
 
 

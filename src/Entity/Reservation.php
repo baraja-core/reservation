@@ -58,6 +58,9 @@ class Reservation
 	#[ORM\Column(type: 'string', length: 16, nullable: true)]
 	private ?string $phone = null;
 
+	#[ORM\Column(type: 'text', nullable: true)]
+	private ?string $note = null;
+
 	#[ORM\Column(type: 'datetime')]
 	private \DateTimeInterface $createDate;
 
@@ -252,6 +255,18 @@ class Reservation
 			$phone = PhoneNumberFormatter::fix($phone);
 		}
 		$this->phone = $phone;
+	}
+
+
+	public function getNote(): ?string
+	{
+		return $this->note;
+	}
+
+
+	public function setNote(?string $note): void
+	{
+		$this->note = trim($note ?? '') ?: null;
 	}
 
 

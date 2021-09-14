@@ -36,6 +36,11 @@ Vue.component('reservation-overview', {
 				<b-button variant="danger" @click="storno">Storno</b-button>
 			</div>
 		</div>
+		<div v-if="item.note" class="mt-3">
+			<b-card class="p-0">
+				<b>Note:</b><br>{{ item.note }}
+			</b-card>
+		</div>
 		<div class="row mt-3">
 			<div class="col">
 				<h4>Items:</h4>
@@ -46,7 +51,7 @@ Vue.component('reservation-overview', {
 		</div>
 		<div v-else class="row">
 			<div class="col">
-				<table class="table table-sm">
+				<table class="table table-sm cms-table-no-border-top">
 					<tr>
 						<th>Product</th>
 						<th width="150">Quantity</th>
@@ -90,7 +95,7 @@ Vue.component('reservation-overview', {
 		<div v-if="item.otherReservationsByCustomer.length === 0" class="text-center my-5 text-secondary">
 			There are no other reservations.
 		</div>
-		<table v-else class="table table-sm">
+		<table v-else class="table table-sm cms-table-no-border-top">
 			<tr>
 				<th>Number</th>
 				<th>Price</th>

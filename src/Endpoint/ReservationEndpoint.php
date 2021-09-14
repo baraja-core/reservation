@@ -121,6 +121,7 @@ final class ReservationEndpoint extends BaseEndpoint
 				'toDate' => $reservation->getTo(),
 				'createDate' => $reservation->getCreateDate(),
 				'dates' => $dates,
+				'note' => $reservation->getNote(),
 				'otherReservationsByCustomer' => $otherReservationsByCustomer,
 				'products' => $products,
 			]

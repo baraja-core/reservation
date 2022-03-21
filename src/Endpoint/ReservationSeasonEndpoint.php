@@ -75,7 +75,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 						'This interval can not be used: '
 						. 'Date "' . $date->getDate() . '" is blocked, because season '
 						. '"' . $dateSeason->getName() . '" already exist there.',
-						self::FLASH_MESSAGE_ERROR
+						self::FLASH_MESSAGE_ERROR,
 					);
 					$this->sendError('Season date is blocked by another season.');
 				}
@@ -136,7 +136,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 			if ($reservation !== null) { // is reservation?
 				$this->sendError(
 					'Season "' . $season->getName() . '" (' . $id . ') can not be removed, '
-					. 'because contain a reservation "' . $reservation->getNumber() . '".'
+					. 'because contain a reservation "' . $reservation->getNumber() . '".',
 				);
 			}
 		}

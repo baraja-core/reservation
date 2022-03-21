@@ -75,7 +75,7 @@ class Reservation
 		int $price,
 		?string $firstName,
 		?string $lastName,
-		string $email
+		string $email,
 	) {
 		$this->from = $from;
 		$this->to = $to;

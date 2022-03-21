@@ -85,7 +85,7 @@ final class ReservationManager
 			$price,
 			$firstName,
 			$lastName,
-			$email
+			$email,
 		);
 		$reservation->setPhone($phone);
 		$this->entityManager->persist($reservation);
@@ -180,7 +180,7 @@ final class ReservationManager
 		$message = (new Message)
 			->setSubject(
 				($configuration->get(self::NOTIFICATION_SUBJECT) ?: 'New reservation')
-				. ' | ' . $reservation->getNumber()
+				. ' | ' . $reservation->getNumber(),
 			)
 			->setBody('New reservation.');
 

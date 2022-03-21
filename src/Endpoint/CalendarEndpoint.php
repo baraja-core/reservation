@@ -135,7 +135,7 @@ final class CalendarEndpoint extends BaseEndpoint
 				'year' => $year,
 				'calendar' => $calendar,
 				'seasons' => $seasonList,
-			]
+			],
 		);
 	}
 
@@ -179,7 +179,7 @@ final class CalendarEndpoint extends BaseEndpoint
 						'minimalDays' => $season->getMinimalDays(),
 						'dates' => $season->getDatesFormatted(),
 					] : null,
-			]
+			],
 		);
 	}
 

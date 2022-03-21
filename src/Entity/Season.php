@@ -96,7 +96,7 @@ class Season
 	{
 		if ($minimalDays < 1) {
 			throw new \InvalidArgumentException(
-				'Minimal reservation days for season is 1, but "' . $minimalDays . '" given.'
+				'Minimal reservation days for season is 1, but "' . $minimalDays . '" given.',
 			);
 		}
 		$this->minimalDays = $minimalDays;
@@ -157,7 +157,7 @@ class Season
 			[$x, $y] = [1, -1];
 		} else {
 			throw new \InvalidArgumentException(
-				'Direction "' . $direction . '" does not exist. Did you mean "ASC" or "DESC"?'
+				'Direction "' . $direction . '" does not exist. Did you mean "ASC" or "DESC"?',
 			);
 		}
 
@@ -175,7 +175,7 @@ class Season
 					->getTimestamp();
 
 				return $left < $right ? $x : $y;
-			}
+			},
 		);
 
 		return $return;

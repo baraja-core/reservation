@@ -62,7 +62,7 @@ final class ReservationEndpoint extends BaseEndpoint
 				'count' => 10,
 				'items' => $items,
 				'paginator' => [],
-			]
+			],
 		);
 	}
 
@@ -124,7 +124,7 @@ final class ReservationEndpoint extends BaseEndpoint
 				'note' => $reservation->getNote(),
 				'otherReservationsByCustomer' => $otherReservationsByCustomer,
 				'products' => $products,
-			]
+			],
 		);
 	}
 

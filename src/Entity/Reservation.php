@@ -80,8 +80,12 @@ class Reservation
 		$this->from = $from;
 		$this->to = $to;
 		$this->price = $price;
-		$this->firstName = $firstName !== '' && $firstName !== null ? Strings::firstUpper($firstName) : null;
-		$this->lastName = $lastName !== '' && $lastName !== null ? Strings::firstUpper($lastName) : null;
+		$this->firstName = $firstName !== '' && $firstName !== null
+			? Strings::firstUpper($firstName)
+			: null;
+		$this->lastName = $lastName !== '' && $lastName !== null
+			? Strings::firstUpper($lastName)
+			: null;
 		$this->email = mb_strtolower($email, 'UTF-8');
 		$this->hash = Random::generate(32);
 		$this->createDate = new \DateTime;

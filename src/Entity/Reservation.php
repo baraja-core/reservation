@@ -80,9 +80,9 @@ class Reservation
 		$this->from = $from;
 		$this->to = $to;
 		$this->price = $price;
-		$this->firstName = Strings::firstUpper($firstName ?? '') ?: null;
-		$this->lastName = Strings::firstUpper($lastName ?? '') ?: null;
-		$this->email = (string) mb_strtolower($email, 'UTF-8');
+		$this->firstName = $firstName !== '' && $firstName !== null ? Strings::firstUpper($firstName) : null;
+		$this->lastName = $lastName !== '' && $lastName !== null ? Strings::firstUpper($lastName) : null;
+		$this->email = mb_strtolower($email, 'UTF-8');
 		$this->hash = Random::generate(32);
 		$this->createDate = new \DateTime;
 		$this->dates = new ArrayCollection;
@@ -203,7 +203,9 @@ class Reservation
 
 	public function getName(): ?string
 	{
-		return trim($this->getFirstName() . ' ' . $this->getLastName()) ?: null;
+		$name = trim(sprintf('%s %s', $this->getFirstName(), $this->getLastName()));
+
+		return $name !== '' ? $name : null;
 	}
 
 
@@ -266,7 +268,8 @@ class Reservation
 
 	public function setNote(?string $note): void
 	{
-		$this->note = trim($note ?? '') ?: null;
+		$note = trim($note ?? '');
+		$this->note = $note !== '' ? $note : null;
 	}
 
 

@@ -37,7 +37,7 @@ final class CalendarEndpoint extends BaseEndpoint
 		$return[null] = '-- Select product --';
 		foreach ($products as $product) {
 			$id = $product->getId();
-			$return[$id] = '(' . $id . ') ' . $product->getName();
+			$return[$id] = sprintf('(%d) %s', $id, (string) $product->getName());
 		}
 
 		$this->sendJson([
@@ -83,8 +83,7 @@ final class CalendarEndpoint extends BaseEndpoint
 
 		$calendar = [];
 		foreach ($calendarDays as $monthKey => $dates) {
-			$firstDay = (int) DateTime::from($monthKey . '-01')
-				->format('N');
+			$firstDay = (int) DateTime::from($monthKey . '-01')->format('N');
 			$firstDate = DateTime::from($dates[0]->getDate());
 			$firstWeek = (int) $firstDate->format('W');
 			if ($firstWeek > 5 && ((int) $firstDate->format('m')) === 1) {
@@ -121,10 +120,8 @@ final class CalendarEndpoint extends BaseEndpoint
 				'id' => $season->getId(),
 				'name' => $season->getName(),
 				'price' => $season->getPrice(),
-				'from' => $season->getFromDate()
-					->format('d. m. Y'),
-				'to' => $season->getToDate()
-					->format('d. m. Y'),
+				'from' => $season->getFromDate()->format('d. m. Y'),
+				'to' => $season->getToDate()->format('d. m. Y'),
 				'minimalDays' => $season->getMinimalDays(),
 				'active' => $season->isActive(),
 			];

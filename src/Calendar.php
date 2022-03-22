@@ -115,7 +115,6 @@ final class Calendar
 	}
 
 
-	/** @phpstan-ignore-next-line */
 	private function getDatePeriod(\DateTime|string $from, \DateTime|string $to): \DatePeriod
 	{
 		$fromType = DateTime::from($from);

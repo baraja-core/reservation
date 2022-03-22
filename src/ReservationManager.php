@@ -141,7 +141,7 @@ final class ReservationManager
 		if ($return !== null) { // Check if interval is limited
 			$interval = date_interval_create_from_date_string($return . ' days');
 			if ($interval === false) {
-				throw new \LogicException('Interval "' . $return . ' days" is not valid.');
+				throw new \LogicException(sprintf('Interval "%s days" is not valid.', $return));
 			}
 			$maxAvailableArea = 0;
 			$currentAvailableArea = 0;
@@ -178,10 +178,11 @@ final class ReservationManager
 		$copy = $configuration->get(self::NOTIFICATION_COPY);
 
 		$message = (new Message)
-			->setSubject(
-				($configuration->get(self::NOTIFICATION_SUBJECT) ?: 'New reservation')
-				. ' | ' . $reservation->getNumber(),
-			)
+			->setSubject(sprintf(
+				'%s | %s',
+				$configuration->get(self::NOTIFICATION_SUBJECT) ?? 'New reservation',
+				$reservation->getNumber(),
+			))
 			->setBody('New reservation.');
 
 		if ($to !== null && Validators::isEmail($to)) {

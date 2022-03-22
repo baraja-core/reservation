@@ -37,10 +37,14 @@ final class ReservationPlugin extends BasePlugin
 				->getQuery()
 				->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
-			$this->error('Reservation "' . $id . '" does not exist.');
+			$this->error(sprintf('Reservation "%d" does not exist.', $id));
 		}
 
-		$this->setTitle('(' . $reservation->getIdentifier() . ') Reservation [' . $reservation->getName() . ']');
+		$this->setTitle(sprintf(
+			'(%s) Reservation [%s]',
+			$reservation->getIdentifier(),
+			$reservation->getName(),
+		));
 		$this->setSubtitle($reservation->getPhone());
 	}
 }

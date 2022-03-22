@@ -55,7 +55,8 @@ class Season
 
 	public function setName(string $name): void
 	{
-		$this->name = Strings::firstUpper(trim($name)) ?: 'Season';
+		$name = Strings::firstUpper(trim($name));
+		$this->name = $name !== '' ? $name: 'Season';
 	}
 
 
@@ -67,7 +68,8 @@ class Season
 
 	public function setDescription(?string $description): void
 	{
-		$this->description = trim($description ?? '') ?: null;
+		$description = trim($description ?? '');
+		$this->description = $description !== '' ? $description : null;
 	}
 
 

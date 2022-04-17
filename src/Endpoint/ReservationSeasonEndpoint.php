@@ -153,7 +153,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		$season->setActive(!$season->isActive());
 		$this->entityManager->flush();
 		$this->flashMessage(
-			'Season has been marked as ' . ($season->isActive() ? 'active' : 'hidden') . '.',
+			sprintf('Season has been marked as %s.', $season->isActive() ? 'active' : 'hidden'),
 			self::FLASH_MESSAGE_SUCCESS,
 		);
 		$this->sendOk();
@@ -175,7 +175,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		try {
 			return $selection->getQuery()->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
-			$this->sendError('Season "' . $id . '" does not exist.');
+			$this->sendError(sprintf('Season "%d" does not exist.', $id));
 		}
 	}
 
@@ -190,7 +190,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 				->getQuery()
 				->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
-			$this->sendError('Product "' . $id . '" does not exist.');
+			$this->sendError(sprintf('Season "%d" does not exist.', $id));
 		}
 	}
 }

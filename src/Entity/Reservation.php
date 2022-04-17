@@ -20,13 +20,13 @@ class Reservation
 	use IdentifierUnsigned;
 
 	public const
-		STATUS_NEW = 'new',
-		STATUS_PAID = 'paid',
-		STATUS_STORNO = 'storno';
+		StatusNew = 'new',
+		StatusPaid = 'paid',
+		StatusStorno = 'storno';
 
-	/** @var Date[]|Collection */
+	/** @var Collection<Date> */
 	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Date::class)]
-	private $dates;
+	private Collection $dates;
 
 	#[ORM\Column(name: '`from`', type: 'date')]
 	private \DateTimeInterface $from;
@@ -41,7 +41,7 @@ class Reservation
 	private ?string $number = null;
 
 	#[ORM\Column(type: 'string', length: 16)]
-	private string $status = self::STATUS_NEW;
+	private string $status = self::StatusNew;
 
 	#[ORM\Column(type: 'string', length: 32, unique: true)]
 	private string $hash;
@@ -64,9 +64,9 @@ class Reservation
 	#[ORM\Column(type: 'datetime')]
 	private \DateTimeInterface $createDate;
 
-	/** @var ReservationProductItem[]|Collection */
+	/** @var Collection<ReservationProductItem> */
 	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: ReservationProductItem::class)]
-	private $productItems;
+	private Collection $productItems;
 
 
 	public function __construct(
@@ -113,7 +113,7 @@ class Reservation
 
 
 	/**
-	 * @return Date[]|Collection
+	 * @return Collection<Date>
 	 */
 	public function getDates()
 	{
@@ -122,7 +122,7 @@ class Reservation
 
 
 	/**
-	 * @return ReservationProductItem[]|Collection
+	 * @return Collection<ReservationProductItem>
 	 */
 	public function getProductItems()
 	{

@@ -45,12 +45,13 @@ final class Calendar
 	 */
 	public function getByInterval(\DateTime|string $from, \DateTime|string $to, Product $product): array
 	{
-		$dates = [];
-		foreach ($this->getDatePeriod($from, $to) as $value) {
-			$dates[] = $value->format('Y-m-d');
-		}
-
-		return $this->getByDates($dates, $product);
+		return $this->getByDates(
+			dates: array_map(
+				static fn(\DateTimeInterface $date): string => $date->format('Y-m-d'),
+				(array) $this->getDatePeriod($from, $to),
+			),
+			product: $product,
+		);
 	}
 
 
@@ -129,7 +130,7 @@ final class Calendar
 		return new \DatePeriod(
 			start: DateTime::from($fromType->format('Y-m-d 00:00:00')), // @phpstan-ignore-line
 			interval: new \DateInterval('P1D'), // @phpstan-ignore-line
-			end: DateTime::from($toType->format('Y-m-d 23:00:00')),
+			end: DateTime::from($toType->format('Y-m-d 23:00:00')), // @phpstan-ignore-line
 		);
 	}
 }

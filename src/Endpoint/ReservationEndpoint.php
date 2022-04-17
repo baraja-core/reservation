@@ -206,12 +206,12 @@ final class ReservationEndpoint extends BaseEndpoint
 
 	public function actionNotificationConfiguration(): void
 	{
-		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);
+		$configuration = $this->configuration->getSection(ReservationManager::ConfigurationNamespace);
 
 		$this->sendJson([
-			'to' => $configuration->get(ReservationManager::NOTIFICATION_TO) ?? '',
-			'copy' => $configuration->get(ReservationManager::NOTIFICATION_COPY) ?? '',
-			'subject' => $configuration->get(ReservationManager::NOTIFICATION_SUBJECT) ?? '',
+			'to' => $configuration->get(ReservationManager::NotificationTo) ?? '',
+			'copy' => $configuration->get(ReservationManager::NotificationCopy) ?? '',
+			'subject' => $configuration->get(ReservationManager::NotificationSubject) ?? '',
 		]);
 	}
 
@@ -225,10 +225,10 @@ final class ReservationEndpoint extends BaseEndpoint
 		$copy = trim($copy);
 		$subject = trim($subject);
 
-		$configuration = $this->configuration->getSection(ReservationManager::CONFIGURATION_NAMESPACE);
-		$configuration->save(ReservationManager::NOTIFICATION_TO, $to !== '' ? $to : null);
-		$configuration->save(ReservationManager::NOTIFICATION_COPY, $copy !== '' ? $copy : null);
-		$configuration->save(ReservationManager::NOTIFICATION_SUBJECT, $subject !== '' ? $subject : null);
+		$configuration = $this->configuration->getSection(ReservationManager::ConfigurationNamespace);
+		$configuration->save(ReservationManager::NotificationTo, $to !== '' ? $to : null);
+		$configuration->save(ReservationManager::NotificationCopy, $copy !== '' ? $copy : null);
+		$configuration->save(ReservationManager::NotificationSubject, $subject !== '' ? $subject : null);
 		$this->flashMessage('Configuration has been saved.', self::FLASH_MESSAGE_SUCCESS);
 		$this->sendOk();
 	}

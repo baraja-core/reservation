@@ -8,21 +8,21 @@ namespace Baraja\Reservation;
 use Baraja\Doctrine\EntityManager;
 use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Emailer\EmailerAccessor;
+use Baraja\Reservation\Entity\Date;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\Entity\ReservationProductItem;
 use Baraja\Shop\Product\Entity\Product;
 use Nette\Mail\Message;
 use Nette\Utils\Validators;
 use Tracy\Debugger;
-use Tracy\ILogger;
 
 final class ReservationManager
 {
 	public const
-		CONFIGURATION_NAMESPACE = 'reservation',
-		NOTIFICATION_TO = 'notification-to',
-		NOTIFICATION_COPY = 'notification-copy',
-		NOTIFICATION_SUBJECT = 'notification-subject';
+		ConfigurationNamespace = 'reservation',
+		NotificationTo = 'notification-to',
+		NotificationCopy = 'notification-copy',
+		NotificationSubject = 'notification-subject';
 
 
 	public function __construct(
@@ -35,7 +35,7 @@ final class ReservationManager
 
 
 	/**
-	 * @param Product[] $products
+	 * @param array<int, Product> $products
 	 */
 	public function createReservation(
 		\DateTime $from,
@@ -80,12 +80,12 @@ final class ReservationManager
 		}
 
 		$reservation = new Reservation(
-			$from,
-			$to,
-			$price,
-			$firstName,
-			$lastName,
-			$email,
+			from: $from,
+			to: $to,
+			price: $price,
+			firstName: $firstName,
+			lastName: $lastName,
+			email: $email,
 		);
 		$reservation->setPhone($phone);
 		$this->entityManager->persist($reservation);
@@ -94,8 +94,11 @@ final class ReservationManager
 			$day->setReservation($reservation);
 		}
 		foreach ($products as $product) {
-			$productItem = new ReservationProductItem($reservation, $product);
-			$this->entityManager->persist($reservation->addItem($productItem));
+			$this->entityManager->persist(
+				$reservation->addItem(
+					new ReservationProductItem($reservation, $product),
+				),
+			);
 		}
 
 		$this->entityManager->flush();
@@ -106,7 +109,7 @@ final class ReservationManager
 		} catch (\Throwable $e) {
 			// Silence is golden.
 			if (class_exists(Debugger::class)) {
-				Debugger::log($e, ILogger::CRITICAL);
+				Debugger::log($e, 'critical');
 			}
 		}
 
@@ -116,15 +119,12 @@ final class ReservationManager
 
 	public function countDaysPrice(\DateTime $from, \DateTime $to, Product $product): int
 	{
-		$sum = 0;
-		foreach ($this->calendar->getByInterval($from, $to, $product) as $date) {
-			$season = $date->getSeason();
-			if ($season !== null) {
-				$sum += $season->getPrice();
-			}
-		}
-
-		return $sum;
+		return array_sum(
+			array_map(
+				static fn(Date $date): int => $date->getSeason()?->getPrice() ?? 0,
+				$this->calendar->getByInterval($from, $to, $product),
+			),
+		);
 	}
 
 
@@ -139,7 +139,7 @@ final class ReservationManager
 			}
 		}
 		if ($return !== null) { // Check if interval is limited
-			$interval = date_interval_create_from_date_string($return . ' days');
+			$interval = date_interval_create_from_date_string(sprintf('%d days', $return));
 			if ($interval === false) {
 				throw new \LogicException(sprintf('Interval "%s days" is not valid.', $return));
 			}
@@ -172,18 +172,18 @@ final class ReservationManager
 
 	private function sendNotification(Reservation $reservation): void
 	{
-		$configuration = $this->configuration->getSection(self::CONFIGURATION_NAMESPACE);
+		$configuration = $this->configuration->getSection(self::ConfigurationNamespace);
 
-		$to = $configuration->get(self::NOTIFICATION_TO);
-		$copy = $configuration->get(self::NOTIFICATION_COPY);
+		$to = $configuration->get(self::NotificationTo);
+		$copy = $configuration->get(self::NotificationCopy);
 
-		$message = (new Message)
-			->setSubject(sprintf(
-				'%s | %s',
-				$configuration->get(self::NOTIFICATION_SUBJECT) ?? 'New reservation',
-				$reservation->getNumber(),
-			))
-			->setBody('New reservation.');
+		$message = new Message;
+		$message->setSubject(sprintf(
+			'%s | %s',
+			$configuration->get(self::NotificationSubject) ?? 'New reservation',
+			$reservation->getNumber(),
+		));
+		$message->setBody('New reservation.');
 
 		if ($to !== null && Validators::isEmail($to)) {
 			$message->addTo($to);
@@ -195,7 +195,6 @@ final class ReservationManager
 			$message->addCc($copy);
 		}
 
-		$this->emailerAccessor->get()
-			->send($message);
+		$this->emailerAccessor->get()->send($message);
 	}
 }

@@ -131,6 +131,7 @@ final class ReservationEndpoint extends BaseEndpoint
 		foreach ($reservation->getDates() as $date) {
 			$date->setReservation(null);
 		}
+		$reservation->getDates()->clear();
 		foreach ($this->calendar->getByInterval($from, $to, $this->getProduct($productId)) as $day) {
 			$dayReservation = $day->getReservation();
 			if ($dayReservation !== null && $dayReservation->getId() !== $id) {
@@ -141,15 +142,14 @@ final class ReservationEndpoint extends BaseEndpoint
 				));
 			}
 			$day->setReservation($reservation);
+			$reservation->addDate($day);
 		}
-		$reservation->setFrom($from);
-		$reservation->setTo($to);
 		$reservation->setNote(
 			trim(sprintf(
 				"%s\nInterval changed: [from: %s, to: %s, current date: %s]",
 				(string) $reservation->getNote(),
-				$from->format('d. m. Y'),
-				$to->format('d. m. Y'),
+				$reservation->getFrom()->format('d. m. Y'),
+				$reservation->getTo()->format('d. m. Y'),
 				date('d. m. Y, H:i:s'),
 			)),
 		);

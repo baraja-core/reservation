@@ -28,10 +28,12 @@ class Reservation
 	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Date::class)]
 	private Collection $dates;
 
-	#[ORM\Column(name: '`from`', type: 'date')]
+	/** @deprecated since 2022-09-07, use computed dates instead. */
+	#[ORM\Column(name: '`from`', type: 'date', nullable: true)]
 	private \DateTimeInterface $from;
 
-	#[ORM\Column(name: '`to`', type: 'date')]
+	/** @deprecated since 2022-09-07, use computed dates instead. */
+	#[ORM\Column(name: '`to`', type: 'date', nullable: true)]
 	private \DateTimeInterface $to;
 
 	#[ORM\Column(type: 'integer')]
@@ -77,8 +79,6 @@ class Reservation
 		?string $lastName,
 		string $email,
 	) {
-		$this->from = $from;
-		$this->to = $to;
 		$this->price = $price;
 		$this->firstName = $firstName !== '' && $firstName !== null
 			? Strings::firstUpper($firstName)
@@ -165,11 +165,15 @@ class Reservation
 				$min = $date->getDateType();
 			}
 		}
+		if ($min === null) {
+			throw new \LogicException(sprintf('Reservation "%s" is empty.', $this->getIdentifier()));
+		}
 
-		return $min ?? $this->from;
+		return $min;
 	}
 
 
+	/** @deprecated since 2022-09-07, use computed dates instead. */
 	public function setFrom(\DateTime $from): void
 	{
 		$this->from = $from;
@@ -184,11 +188,15 @@ class Reservation
 				$max = $date->getDateType();
 			}
 		}
+		if ($max === null) {
+			throw new \LogicException(sprintf('Reservation "%s" is empty.', $this->getIdentifier()));
+		}
 
-		return $max ?? $this->to;
+		return $max;
 	}
 
 
+	/** @deprecated since 2022-09-07, use computed dates instead. */
 	public function setTo(\DateTime $to): void
 	{
 		$this->to = $to;

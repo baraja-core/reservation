@@ -30,6 +30,8 @@ final class ReservationEndpoint extends BaseEndpoint
 		/** @var Reservation[] $reservations */
 		$reservations = $this->entityManager->getRepository(Reservation::class)
 			->createQueryBuilder('reservation')
+			->select('reservation, date')
+			->join('reservation.dates', 'date')
 			->orderBy('reservation.createDate', 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult(($page - 1) * $limit)
@@ -49,21 +51,17 @@ final class ReservationEndpoint extends BaseEndpoint
 				],
 				'price' => $reservation->getPrice(),
 				'status' => $reservation->getStatus(),
-				'from' => $reservation->getFrom()
-					->format('d. m. Y'),
-				'to' => $reservation->getTo()
-					->format('d. m. Y'),
+				'from' => $reservation->getFrom()->format('d. m. Y'),
+				'to' => $reservation->getTo()->format('d. m. Y'),
 				'createDate' => $reservation->getCreateDate(),
 			];
 		}
 
-		$this->sendJson(
-			[
-				'count' => 10,
-				'items' => $items,
-				'paginator' => [],
-			],
-		);
+		$this->sendJson([
+			'count' => 10,
+			'items' => $items,
+			'paginator' => [],
+		]);
 	}
 
 
@@ -109,15 +107,13 @@ final class ReservationEndpoint extends BaseEndpoint
 					'lastName' => $reservation->getLastName(),
 					'email' => $reservation->getEmail(),
 					'phone' => $reservation->getPhone(),
-					'avatarUrl' => 'https://cdn.baraja.cz/avatar/' . md5($reservation->getEmail()) . '.png',
+					'avatarUrl' => sprintf('https://cdn.baraja.cz/avatar/%s.png', md5($reservation->getEmail())),
 				],
 				'price' => $reservation->getPrice(),
 				'status' => $reservation->getStatus(),
-				'from' => $reservation->getFrom()
-					->format('d. m. Y'),
+				'from' => $reservation->getFrom()->format('d. m. Y'),
 				'fromDate' => $reservation->getFrom(),
-				'to' => $reservation->getTo()
-					->format('d. m. Y'),
+				'to' => $reservation->getTo()->format('d. m. Y'),
 				'toDate' => $reservation->getTo(),
 				'createDate' => $reservation->getCreateDate(),
 				'dates' => $dates,
@@ -138,10 +134,11 @@ final class ReservationEndpoint extends BaseEndpoint
 		foreach ($this->calendar->getByInterval($from, $to, $this->getProduct($productId)) as $day) {
 			$dayReservation = $day->getReservation();
 			if ($dayReservation !== null && $dayReservation->getId() !== $id) {
-				$this->sendError(
-					'Day "' . $day->getDate() . '" can not be used, '
-					. 'because contain reservation "' . $dayReservation->getNumber() . '".',
-				);
+				$this->sendError(sprintf(
+					'Day "%s" can not be used, because contain reservation "%s".',
+					$day->getDate(),
+					$dayReservation->getNumber(),
+				));
 			}
 			$day->setReservation($reservation);
 		}
@@ -290,7 +287,7 @@ final class ReservationEndpoint extends BaseEndpoint
 				->getQuery()
 				->getSingleResult();
 		} catch (NoResultException | NonUniqueResultException) {
-			$this->sendError('Product "' . $id . '" does not exist.');
+			$this->sendError(sprintf('Product "%s" does not exist.', $id));
 		}
 	}
 }

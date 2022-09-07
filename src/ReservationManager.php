@@ -183,7 +183,7 @@ final class ReservationManager
 			$configuration->get(self::NotificationSubject) ?? 'New reservation',
 			$reservation->getNumber(),
 		));
-		$message->setBody('New reservation.');
+		$message->setHtmlBody($this->processNotificationMessage($reservation));
 
 		if ($to !== null && Validators::isEmail($to)) {
 			$message->addTo($to);
@@ -196,5 +196,37 @@ final class ReservationManager
 		}
 
 		$this->emailerAccessor->get()->send($message);
+	}
+
+
+	private function processNotificationMessage(Reservation $reservation): string
+	{
+		$dates = [];
+		foreach ($reservation->getDates() as $date) {
+			$dates[] = $date->getDate('d. m. Y');
+		}
+
+		return sprintf(
+			'<h1>New reservation %i</h1><p>'
+			. 'From: %s, To: %s<br>'
+			. 'Price: %s<br>'
+			. 'Name: %s<br>'
+			. 'E-mail: %s<br>'
+			. 'Phone: %s<br>'
+			. 'Note: %s<br>'
+			. '</p>'
+			.'<p>Real reserved dates: %s</p>'
+			.'<p>Created date: %s</p>',
+			$reservation->getIdentifier(),
+			$reservation->getFrom()->format('d. m. Y'),
+			$reservation->getTo()->format('d. m. Y'),
+			(string) $reservation->getPrice(),
+			$reservation->getName() ?? '???',
+			$reservation->getEmail(),
+			$reservation->getPhone() ?? '-',
+			$reservation->getNote() ?? '-',
+			implode(', ', $dates),
+			$reservation->getCreateDate()->format('d. m. Y, H:i:s'),
+		);
 	}
 }

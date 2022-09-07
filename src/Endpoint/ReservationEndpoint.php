@@ -8,6 +8,9 @@ namespace Baraja\Reservation\Endpoint;
 use Baraja\Doctrine\EntityManager;
 use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Reservation\Calendar;
+use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItem;
+use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItemCustomer;
+use Baraja\Reservation\Endpoint\DTO\ReservationOverviewResponse;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\ReservationManager;
 use Baraja\Shop\Product\Entity\Product;
@@ -25,7 +28,7 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionDefault(int $page = 1, int $limit = 64): void
+	public function actionDefault(int $page = 1, int $limit = 64): ReservationOverviewResponse
 	{
 		/** @var Reservation[] $reservations */
 		$reservations = $this->entityManager->getRepository(Reservation::class)
@@ -40,28 +43,28 @@ final class ReservationEndpoint extends BaseEndpoint
 
 		$items = [];
 		foreach ($reservations as $reservation) {
-			$items[] = [
-				'id' => $reservation->getId(),
-				'number' => $reservation->getIdentifier(),
-				'customer' => [
-					'firstName' => $reservation->getFirstName(),
-					'lastName' => $reservation->getLastName(),
-					'email' => $reservation->getEmail(),
-					'phone' => $reservation->getPhone(),
-				],
-				'price' => $reservation->getPrice(),
-				'status' => $reservation->getStatus(),
-				'from' => $reservation->getFrom()->format('d. m. Y'),
-				'to' => $reservation->getTo()->format('d. m. Y'),
-				'createDate' => $reservation->getCreateDate(),
-			];
+			$items[] = new ReservationOverviewItem(
+				id: $reservation->getId(),
+				number: $reservation->getIdentifier(),
+				customer: new ReservationOverviewItemCustomer(
+					firstName: $reservation->getFirstName(),
+					lastName: $reservation->getLastName(),
+					email: $reservation->getEmail(),
+					phone: $reservation->getPhone(),
+				),
+				price: $reservation->getPrice(),
+				status: $reservation->getStatus(),
+				from: $reservation->getFrom()->format('d. m. Y'),
+				to: $reservation->getTo()->format('d. m. Y'),
+				createDate: $reservation->getCreateDate(),
+			);
 		}
 
-		$this->sendJson([
-			'count' => 10,
-			'items' => $items,
-			'paginator' => [],
-		]);
+		return new ReservationOverviewResponse(
+			count: count($reservations),
+			items: $items,
+			paginator: [],
+		);
 	}
 
 

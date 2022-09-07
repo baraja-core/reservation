@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Baraja\Reservation\Entity;
 
 
-use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\PhoneNumber\PhoneNumberFormatter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,12 +16,15 @@ use Nette\Utils\Strings;
 #[ORM\Table(name: 'reservation__reservation')]
 class Reservation
 {
-	use IdentifierUnsigned;
-
 	public const
 		StatusNew = 'new',
 		StatusPaid = 'paid',
 		StatusStorno = 'storno';
+
+	#[ORM\Id]
+	#[ORM\Column(type: 'integer', unique: true, options: ['unsigned' => true])]
+	#[ORM\GeneratedValue]
+	protected int $id;
 
 	/** @var Collection<Date> */
 	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Date::class)]
@@ -81,6 +83,12 @@ class Reservation
 		$this->createDate = new \DateTime;
 		$this->dates = new ArrayCollection;
 		$this->productItems = new ArrayCollection;
+	}
+
+
+	public function getId(): int
+	{
+		return $this->id;
 	}
 
 

@@ -159,7 +159,14 @@ class Reservation
 
 	public function getFrom(): \DateTimeInterface
 	{
-		return $this->from;
+		$min = null;
+		foreach ($this->dates as $date) {
+			if ($min === null || $date->getDateType() < $min) {
+				$min = $date->getDateType();
+			}
+		}
+
+		return $min ?? $this->from;
 	}
 
 
@@ -171,7 +178,14 @@ class Reservation
 
 	public function getTo(): \DateTimeInterface
 	{
-		return $this->to;
+		$max = null;
+		foreach ($this->dates as $date) {
+			if ($max === null || $date->getDateType() > $max) {
+				$max = $date->getDateType();
+			}
+		}
+
+		return $max ?? $this->to;
 	}
 
 

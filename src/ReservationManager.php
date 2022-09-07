@@ -207,7 +207,7 @@ final class ReservationManager
 		}
 
 		return sprintf(
-			'<h1>New reservation %i</h1><p>'
+			'<h1>New reservation %s</h1><p>'
 			. 'From: %s, To: %s<br>'
 			. 'Price: %s<br>'
 			. 'Name: %s<br>'

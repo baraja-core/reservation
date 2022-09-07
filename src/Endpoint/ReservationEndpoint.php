@@ -147,6 +147,15 @@ final class ReservationEndpoint extends BaseEndpoint
 		}
 		$reservation->setFrom($from);
 		$reservation->setTo($to);
+		$reservation->setNote(
+			trim(sprintf(
+				"%s\nInterval changed: [from: %s, to: %s, current date: %s]",
+				(string) $reservation->getNote(),
+				$from->format('d. m. Y'),
+				$to->format('d. m. Y'),
+				date('d. m. Y, H:i:s'),
+			)),
+		);
 
 		$this->entityManager->flush();
 		$this->flashMessage('Reservation interval has been updated.', self::FlashMessageSuccess);

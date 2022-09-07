@@ -126,11 +126,10 @@ final class Calendar
 			$toType = $helper;
 		}
 
-		/** @phpstan-ignore-next-line */
 		return new \DatePeriod(
-			start: DateTime::from($fromType->format('Y-m-d 00:00:00')), // @phpstan-ignore-line
-			interval: new \DateInterval('P1D'), // @phpstan-ignore-line
-			end: DateTime::from($toType->format('Y-m-d 23:00:00')), // @phpstan-ignore-line
+			start: DateTime::from($fromType->format('Y-m-d 00:00:00')),
+			interval: new \DateInterval('P1D'),
+			end: DateTime::from($toType->format('Y-m-d 23:00:00')),
 		);
 	}
 }

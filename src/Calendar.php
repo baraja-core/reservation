@@ -48,7 +48,7 @@ final class Calendar
 		return $this->getByDates(
 			dates: array_map(
 				static fn(\DateTimeInterface $date): string => $date->format('Y-m-d'),
-				(array) $this->getDatePeriod($from, $to),
+				iterator_to_array($this->getDatePeriod($from, $to)),
 			),
 			product: $product,
 		);

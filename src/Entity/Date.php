@@ -73,12 +73,9 @@ class Date
 
 	public function isEnable(): bool
 	{
-		$season = $this->season;
-
-		return
-			$this->getDateType()->getTimestamp() >= \time()
-			&& $season !== null
-			&& $season->isActive() === true
+		return $this->getDateType()->getTimestamp() >= \time()
+			&& $this->season !== null
+			&& $this->season->isActive() === true
 			&& $this->isReservation() === false;
 	}
 

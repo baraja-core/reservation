@@ -75,7 +75,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 						'This interval can not be used: '
 						. 'Date "' . $date->getDate() . '" is blocked, because season '
 						. '"' . $dateSeason->getName() . '" already exist there.',
-						self::FLASH_MESSAGE_ERROR,
+						self::FlashMessageError,
 					);
 					$this->sendError('Season date is blocked by another season.');
 				}
@@ -84,7 +84,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		}
 
 		$this->entityManager->flush();
-		$this->flashMessage('Season has been updated.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Season has been updated.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -123,7 +123,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		}
 
 		$this->entityManager->flush();
-		$this->flashMessage('Season has been created.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Season has been created.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -142,7 +142,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		}
 		$this->entityManager->remove($season);
 		$this->entityManager->flush();
-		$this->flashMessage('Season has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Season has been removed.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -154,7 +154,7 @@ final class ReservationSeasonEndpoint extends BaseEndpoint
 		$this->entityManager->flush();
 		$this->flashMessage(
 			sprintf('Season has been marked as %s.', $season->isActive() ? 'active' : 'hidden'),
-			self::FLASH_MESSAGE_SUCCESS,
+			self::FlashMessageSuccess,
 		);
 		$this->sendOk();
 	}

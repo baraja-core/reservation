@@ -149,7 +149,7 @@ final class ReservationEndpoint extends BaseEndpoint
 		$reservation->setTo($to);
 
 		$this->entityManager->flush();
-		$this->flashMessage('Reservation interval has been updated.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Reservation interval has been updated.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -185,7 +185,7 @@ final class ReservationEndpoint extends BaseEndpoint
 		$this->entityManager->remove($reservation);
 		$this->entityManager->flush();
 
-		$this->flashMessage('Reservation has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Reservation has been removed.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -199,7 +199,7 @@ final class ReservationEndpoint extends BaseEndpoint
 			}
 		}
 		$this->entityManager->flush();
-		$this->flashMessage('Product item has been removed.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Product item has been removed.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 
@@ -229,7 +229,7 @@ final class ReservationEndpoint extends BaseEndpoint
 		$configuration->save(ReservationManager::NotificationTo, $to !== '' ? $to : null);
 		$configuration->save(ReservationManager::NotificationCopy, $copy !== '' ? $copy : null);
 		$configuration->save(ReservationManager::NotificationSubject, $subject !== '' ? $subject : null);
-		$this->flashMessage('Configuration has been saved.', self::FLASH_MESSAGE_SUCCESS);
+		$this->flashMessage('Configuration has been saved.', self::FlashMessageSuccess);
 		$this->sendOk();
 	}
 

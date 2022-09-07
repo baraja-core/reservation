@@ -28,14 +28,6 @@ class Reservation
 	#[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Date::class)]
 	private Collection $dates;
 
-	/** @deprecated since 2022-09-07, use computed dates instead. */
-	#[ORM\Column(name: '`from`', type: 'date', nullable: true)]
-	private \DateTimeInterface $from;
-
-	/** @deprecated since 2022-09-07, use computed dates instead. */
-	#[ORM\Column(name: '`to`', type: 'date', nullable: true)]
-	private \DateTimeInterface $to;
-
 	#[ORM\Column(type: 'integer')]
 	private int $price;
 
@@ -72,8 +64,6 @@ class Reservation
 
 
 	public function __construct(
-		\DateTime $from,
-		\DateTime $to,
 		int $price,
 		?string $firstName,
 		?string $lastName,
@@ -173,13 +163,6 @@ class Reservation
 	}
 
 
-	/** @deprecated since 2022-09-07, use computed dates instead. */
-	public function setFrom(\DateTime $from): void
-	{
-		$this->from = $from;
-	}
-
-
 	public function getTo(): \DateTimeInterface
 	{
 		$max = null;
@@ -193,13 +176,6 @@ class Reservation
 		}
 
 		return $max;
-	}
-
-
-	/** @deprecated since 2022-09-07, use computed dates instead. */
-	public function setTo(\DateTime $to): void
-	{
-		$this->to = $to;
 	}
 
 

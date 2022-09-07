@@ -80,8 +80,6 @@ final class ReservationManager
 		}
 
 		$reservation = new Reservation(
-			from: $from,
-			to: $to,
 			price: $price,
 			firstName: $firstName,
 			lastName: $lastName,

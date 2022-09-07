@@ -10,13 +10,13 @@
 	],
 	"require": {
 		"php": "^8.0",
-		"baraja-core/shop-product": "^1.0",
-		"baraja-core/plugin-system": "^2.0",
+		"baraja-core/shop-product": "^1.2",
+		"baraja-core/plugin-system": "^2.4",
 		"baraja-core/phone-number": "^1.0",
 		"baraja-core/url": "^1.1",
-		"baraja-core/dynamic-configuration": "^2.1",
-		"baraja-core/doctrine": "^3.0",
-		"baraja-core/emailer": "^1.0",
+		"baraja-core/dynamic-configuration": "^2.2",
+		"baraja-core/doctrine": "^3.7",
+		"baraja-core/emailer": "^1.2",
 		"baraja-core/structured-api": "^4.0",
 		"nette/mail": "^3.0"
 	},

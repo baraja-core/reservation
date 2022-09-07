@@ -215,8 +215,8 @@ final class ReservationManager
 			. 'Phone: %s<br>'
 			. 'Note: %s<br>'
 			. '</p>'
-			.'<p>Real reserved dates: %s</p>'
-			.'<p>Created date: %s</p>',
+			. '<p>Real reserved dates: %s</p>'
+			. '<p>Created date: %s</p>',
 			$reservation->getIdentifier(),
 			$reservation->getFrom()->format('d. m. Y'),
 			$reservation->getTo()->format('d. m. Y'),

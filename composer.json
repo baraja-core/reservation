@@ -17,7 +17,7 @@
 		"baraja-core/dynamic-configuration": "^2.1",
 		"baraja-core/doctrine": "^3.0",
 		"baraja-core/emailer": "^1.0",
-		"baraja-core/structured-api": "^3.0 >=3.0.6",
+		"baraja-core/structured-api": "^4.0",
 		"nette/mail": "^3.0"
 	},
 	"require-dev": {

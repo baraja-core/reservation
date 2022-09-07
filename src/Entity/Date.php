@@ -6,12 +6,13 @@ namespace Baraja\Reservation\Entity;
 
 
 use Baraja\Doctrine\Identifier\IdentifierUnsigned;
+use Baraja\Reservation\Repository\DateRepository;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Nette\Utils\DateTime;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: DateRepository::class)]
 #[ORM\Table(name: 'reservation__date')]
 #[UniqueConstraint(name: 'reservation__date_date', columns: ['date', 'product_id'])]
 class Date

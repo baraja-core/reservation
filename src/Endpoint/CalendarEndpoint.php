@@ -10,6 +10,7 @@ use Baraja\Reservation\Calendar;
 use Baraja\Reservation\Entity\Date;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\Entity\Season;
+use Baraja\Reservation\Repository\DateRepository;
 use Baraja\Shop\Product\Entity\Product;
 use Baraja\StructuredApi\BaseEndpoint;
 use Doctrine\ORM\NonUniqueResultException;
@@ -18,10 +19,16 @@ use Nette\Utils\DateTime;
 
 final class CalendarEndpoint extends BaseEndpoint
 {
+	private DateRepository $dateRepository;
+
+
 	public function __construct(
 		private EntityManager $entityManager,
 		private Calendar $calendar,
 	) {
+		$dateRepository = $entityManager->getRepository(Date::class);
+		assert($dateRepository instanceof DateRepository);
+		$this->dateRepository = $dateRepository;
 	}
 
 
@@ -139,19 +146,7 @@ final class CalendarEndpoint extends BaseEndpoint
 
 	public function actionDetail(int $productId, string $date): void
 	{
-		/** @var Date $entity */
-		$entity = $this->entityManager->getRepository(Date::class)
-			->createQueryBuilder('date')
-			->select('date, reservation, season')
-			->leftJoin('date.reservation', 'reservation')
-			->leftJoin('date.season', 'season')
-			->where('date.date = :date')
-			->andWhere('date.product = :productId')
-			->setParameter('date', DateTime::from($date)->format('Y-m-d'))
-			->setParameter('productId', $productId)
-			->getQuery()
-			->getSingleResult();
-
+		$entity = $this->dateRepository->getDateRecordByProductAndDate($productId, $date);
 		$reservation = $entity->getReservation();
 		$season = $entity->getSeason();
 

@@ -7,14 +7,21 @@ namespace Baraja\Reservation;
 
 use Baraja\Doctrine\EntityManager;
 use Baraja\Reservation\Entity\Date;
+use Baraja\Reservation\Repository\DateRepository;
 use Baraja\Shop\Product\Entity\Product;
 use Nette\Utils\DateTime;
 
 final class Calendar
 {
+	private DateRepository $dateRepository;
+
+
 	public function __construct(
 		private EntityManager $entityManager,
 	) {
+		$dateRepository = $entityManager->getRepository(Date::class);
+		assert($dateRepository instanceof DateRepository);
+		$this->dateRepository = $dateRepository;
 	}
 
 
@@ -79,15 +86,7 @@ final class Calendar
 		$hash = implode(',', $dates);
 
 		if (isset($cache[$hash]) === false) {
-			$cache[$hash] = $this->entityManager->getRepository(Date::class)
-				->createQueryBuilder('d')
-				->where('d.date IN (:dates)')
-				->andWhere('d.product = :productId')
-				->setParameter('dates', $dates)
-				->setParameter('productId', $product->getId())
-				->orderBy('d.date', 'ASC')
-				->getQuery()
-				->getResult();
+			$cache[$hash] = $this->dateRepository->getByProductAndDates($product->getId(), $dates);
 		}
 
 		/** @var Date[] $dateEntities */

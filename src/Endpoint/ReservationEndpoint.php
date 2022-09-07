@@ -12,6 +12,7 @@ use Baraja\Reservation\Endpoint\DTO\ReservationDetailResponse;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItem;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItemCustomer;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewResponse;
+use Baraja\Reservation\Entity\Date;
 use Baraja\Reservation\Entity\Reservation;
 use Baraja\Reservation\ReservationManager;
 use Baraja\Shop\Product\Entity\Product;
@@ -34,13 +35,21 @@ final class ReservationEndpoint extends BaseEndpoint
 		/** @var Reservation[] $reservations */
 		$reservations = $this->entityManager->getRepository(Reservation::class)
 			->createQueryBuilder('reservation')
-			->select('reservation, date')
-			->join('reservation.dates', 'date')
 			->orderBy('reservation.createDate', 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult(($page - 1) * $limit)
 			->getQuery()
 			->getResult();
+
+		$reservationIds = array_map(static fn(Reservation $reservation): int => $reservation->getId(), $reservations);
+		if ($reservationIds !== []) {
+			$this->entityManager->getRepository(Date::class)
+				->createQueryBuilder('date')
+				->where('date.reservation IN (:reservationIds)')
+				->setParameter('reservationIds', $reservationIds)
+				->getQuery()
+				->getResult();
+		}
 
 		$items = [];
 		foreach ($reservations as $reservation) {
@@ -61,8 +70,14 @@ final class ReservationEndpoint extends BaseEndpoint
 			);
 		}
 
+		$count = (int) $this->entityManager->getRepository(Reservation::class)
+			->createQueryBuilder('reservation')
+			->select('COUNT(reservation.id)')
+			->getQuery()
+			->getSingleScalarResult();
+
 		return new ReservationOverviewResponse(
-			count: count($reservations),
+			count: $count,
 			items: $items,
 			paginator: [],
 		);

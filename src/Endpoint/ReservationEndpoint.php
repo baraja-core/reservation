@@ -8,6 +8,7 @@ namespace Baraja\Reservation\Endpoint;
 use Baraja\Doctrine\EntityManager;
 use Baraja\DynamicConfiguration\Configuration;
 use Baraja\Reservation\Calendar;
+use Baraja\Reservation\Endpoint\DTO\ReservationDetailResponse;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItem;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewItemCustomer;
 use Baraja\Reservation\Endpoint\DTO\ReservationOverviewResponse;
@@ -68,7 +69,7 @@ final class ReservationEndpoint extends BaseEndpoint
 	}
 
 
-	public function actionOverview(int $id): void
+	public function actionOverview(int $id): ReservationDetailResponse
 	{
 		$reservation = $this->getReservation($id);
 
@@ -96,34 +97,32 @@ final class ReservationEndpoint extends BaseEndpoint
 			$products[] = [
 				'id' => $productItem->getId(),
 				'productId' => $productItem->getProduct()->getId(),
-				'name' => $productItem->getProduct()->getName(),
+				'name' => $productItem->getProduct()->getLabel(),
 				'quantity' => $productItem->getQuantity(),
 			];
 		}
 
-		$this->sendJson(
-			[
-				'id' => $reservation->getId(),
-				'number' => $reservation->getIdentifier(),
-				'customer' => [
-					'firstName' => $reservation->getFirstName(),
-					'lastName' => $reservation->getLastName(),
-					'email' => $reservation->getEmail(),
-					'phone' => $reservation->getPhone(),
-					'avatarUrl' => sprintf('https://cdn.baraja.cz/avatar/%s.png', md5($reservation->getEmail())),
-				],
-				'price' => $reservation->getPrice(),
-				'status' => $reservation->getStatus(),
-				'from' => $reservation->getFrom()->format('d. m. Y'),
-				'fromDate' => $reservation->getFrom(),
-				'to' => $reservation->getTo()->format('d. m. Y'),
-				'toDate' => $reservation->getTo(),
-				'createDate' => $reservation->getCreateDate(),
-				'dates' => $dates,
-				'note' => $reservation->getNote(),
-				'otherReservationsByCustomer' => $otherReservationsByCustomer,
-				'products' => $products,
-			],
+		return new ReservationDetailResponse(
+			id: $reservation->getId(),
+			number: $reservation->getIdentifier(),
+			customer: new ReservationOverviewItemCustomer(
+				firstName: $reservation->getFirstName(),
+				lastName: $reservation->getLastName(),
+				email: $reservation->getEmail(),
+				phone: $reservation->getPhone(),
+				avatarUrl: sprintf('https://cdn.baraja.cz/avatar/%s.png', md5($reservation->getEmail())),
+			),
+			price: $reservation->getPrice(),
+			status: $reservation->getStatus(),
+			from: $reservation->getFrom()->format('d. m. Y'),
+			fromDate: $reservation->getFrom(),
+			to: $reservation->getTo()->format('d. m. Y'),
+			toDate: $reservation->getTo(),
+			createDate: $reservation->getCreateDate(),
+			dates: $dates,
+			note: $reservation->getNote(),
+			otherReservationsByCustomer: $otherReservationsByCustomer,
+			products: $products,
 		);
 	}
 

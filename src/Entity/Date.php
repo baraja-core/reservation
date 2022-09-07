@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Baraja\Reservation\Entity;
 
 
-use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\Reservation\Repository\DateRepository;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,7 +16,10 @@ use Nette\Utils\DateTime;
 #[UniqueConstraint(name: 'reservation__date_date', columns: ['date', 'product_id'])]
 class Date
 {
-	use IdentifierUnsigned;
+	#[ORM\Id]
+	#[ORM\Column(type: 'integer', unique: true, options: ['unsigned' => true])]
+	#[ORM\GeneratedValue]
+	protected int $id;
 
 	/** Date in format "YYYY-MM-DD". */
 	#[ORM\Column(type: 'string', length: 10)]
@@ -38,6 +40,12 @@ class Date
 		$this->date = DateTime::from($date)
 			->format('Y-m-d');
 		$this->product = $product;
+	}
+
+
+	public function getId(): int
+	{
+		return $this->id;
 	}
 
 

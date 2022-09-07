@@ -12,6 +12,7 @@ final class ReservationOverviewItemCustomer
 		public ?string $lastName,
 		public string $email,
 		public ?string $phone,
+		public ?string $avatarUrl = null,
 	) {
 	}
 }

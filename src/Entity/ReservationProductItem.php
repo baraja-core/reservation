@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Baraja\Reservation\Entity;
 
 
-use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,7 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'reservation__reservation_product_item')]
 class ReservationProductItem
 {
-	use IdentifierUnsigned;
+	#[ORM\Id]
+	#[ORM\Column(type: 'integer', unique: true, options: ['unsigned' => true])]
+	#[ORM\GeneratedValue]
+	protected int $id;
 
 	#[ORM\ManyToOne(targetEntity: Reservation::class, inversedBy: 'productItems')]
 	private Reservation $reservation;
@@ -30,6 +32,12 @@ class ReservationProductItem
 		$this->reservation = $reservation;
 		$this->product = $product;
 		$this->setQuantity($quantity);
+	}
+
+
+	public function getId(): int
+	{
+		return $this->id;
 	}
 
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Baraja\Reservation\Entity;
 
 
-use Baraja\Doctrine\Identifier\IdentifierUnsigned;
 use Baraja\Shop\Product\Entity\Product;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +14,10 @@ use Nette\Utils\Strings;
 #[ORM\Table(name: 'reservation__season')]
 class Season
 {
-	use IdentifierUnsigned;
+	#[ORM\Id]
+	#[ORM\Column(type: 'integer', unique: true, options: ['unsigned' => true])]
+	#[ORM\GeneratedValue]
+	protected int $id;
 
 	#[ORM\Column(type: 'string')]
 	private string $name = 'Season';
@@ -44,6 +46,12 @@ class Season
 	{
 		$this->setPrice($price);
 		$this->setProduct($product);
+	}
+
+
+	public function getId(): int
+	{
+		return $this->id;
 	}
 
 

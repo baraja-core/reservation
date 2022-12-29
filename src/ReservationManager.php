@@ -130,43 +130,19 @@ final class ReservationManager
 
 	public function countMinimalDays(\DateTime $from, \DateTime $to, Product $product): int
 	{
-		$return = null;
-		foreach ($this->calendar->getByInterval($from, $to, $product) as $regularDate) {
-			$season = $regularDate->getSeason();
+		$maximalDays = null;
+		foreach ($this->calendar->getByInterval($from, $to, $product) as $date) {
+			if ($date->isEnable() === false) {
+				continue;
+			}
+			$season = $date->getSeason();
 			$days = $season !== null ? $season->getMinimalDays() : 0;
-			if ($return === null || $days > $return) {
-				$return = $days;
+			if ($maximalDays === null || $days > $maximalDays) {
+				$maximalDays = $days;
 			}
-		}
-		if ($return !== null) { // Check if interval is limited
-			$interval = date_interval_create_from_date_string(sprintf('%d days', $return));
-			if ($interval === false) {
-				throw new \LogicException(sprintf('Interval "%s days" is not valid.', $return));
-			}
-			$maxAvailableArea = 0;
-			$currentAvailableArea = 0;
-			$dates = $this->calendar->getByInterval(
-				from: date_add($from, $interval),
-				to: date_add($to, $interval),
-				product: $product,
-			);
-			foreach ($dates as $date) {
-				$currentAvailableArea++;
-				if ($date->isEnable() === true) { // is date available?
-					if ($currentAvailableArea > $maxAvailableArea) {
-						$maxAvailableArea = $currentAvailableArea;
-					}
-				} else {
-					$currentAvailableArea = 0;
-				}
-			}
-			if ($maxAvailableArea >= $return) { // User can change requested area (valid)
-				return $return;
-			}
-			return $maxAvailableArea;
 		}
 
-		return 1;
+		return $maximalDays ?? 1;
 	}
 
 

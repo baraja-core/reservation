@@ -89,7 +89,9 @@ final class ReservationManager
 		$this->entityManager->persist($reservation);
 
 		foreach (array_merge([], ...$reservedDays) as $day) {
+			assert($day instanceof Date);
 			$day->setReservation($reservation);
+			$reservation->addDate($day);
 		}
 		foreach ($products as $product) {
 			$this->entityManager->persist(
@@ -179,7 +181,7 @@ final class ReservationManager
 		$message->setSubject(sprintf(
 			'%s | %s',
 			$configuration->get(self::NotificationSubject) ?? 'New reservation',
-			$reservation->getNumber(),
+			$reservation->getId(),
 		));
 		$message->setHtmlBody($this->processNotificationMessage($reservation));
 

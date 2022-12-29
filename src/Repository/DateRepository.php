@@ -42,6 +42,8 @@ final class DateRepository extends EntityRepository
 	{
 		/** @var array<int, Date> $return */
 		$return = $this->createQueryBuilder('d')
+			->select('d, season')
+			->leftJoin('d.season', 'season')
 			->where('d.date IN (:dates)')
 			->andWhere('d.product = :productId')
 			->setParameter('dates', $dates)
